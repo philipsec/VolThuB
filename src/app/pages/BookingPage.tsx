@@ -1,0 +1,312 @@
+import { useState } from "react";
+import { Link, useParams, useNavigate } from "react-router";
+import { ArrowLeft, Calendar as CalendarIcon, Clock, MapPin, Loader2 } from "lucide-react";
+import { Button } from "../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Label } from "../components/ui/label";
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
+import { Checkbox } from "../components/ui/checkbox";
+import { Calendar } from "../components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { workspaces } from "../data/workspaces";
+import { format } from "date-fns";
+
+export default function BookingPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const workspace = workspaces.find(w => w.id === id);
+  
+  const [date, setDate] = useState<Date>();
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [specialRequirements, setSpecialRequirements] = useState("");
+  const [promoCode, setPromoCode] = useState("");
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  if (!workspace) {
+    return (
+      <div className="max-w-7xl mx-auto text-center py-16">
+        <h1 className="text-3xl font-bold text-[#071022] mb-4">Workspace not found</h1>
+        <Link to="/workspaces">
+          <Button className="bg-[#0052FF] hover:bg-[#0042CC] text-white">
+            Back to Browse
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+
+  const calculateDuration = () => {
+    if (!startTime || !endTime) return 0;
+    const [startHour] = startTime.split(":").map(Number);
+    const [endHour] = endTime.split(":").map(Number);
+    return Math.max(0, endHour - startHour);
+  };
+
+  const duration = calculateDuration();
+  const subtotal = duration * workspace.pricePerHour;
+  const tax = subtotal * 0.08;
+  const total = subtotal + tax;
+
+  const timeOptions = Array.from({ length: 24 }, (_, i) => {
+    const hour = i.toString().padStart(2, "0");
+    return `${hour}:00`;
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!agreeToTerms) {
+      alert("Please agree to the cancellation policy");
+      return;
+    }
+    setLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setLoading(false);
+    const bookingId = `VOL-2026-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    navigate(`/booking-confirmation/${bookingId}`);
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto space-y-6">
+      {/* Back Button */}
+      <Link to={`/workspaces/${id}`}>
+        <Button variant="ghost" className="text-[#0052FF] hover:bg-[#F3F4F6]">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Workspace
+        </Button>
+      </Link>
+
+      {/* Breadcrumb */}
+      <div className="text-sm text-[#9CA3AF] flex items-center gap-2">
+        <Link to="/workspaces" className="text-[#0052FF] hover:underline">Workspaces</Link>
+        <span>/</span>
+        <Link to={`/workspaces/${id}`} className="text-[#0052FF] hover:underline">{workspace.name}</Link>
+        <span>/</span>
+        <span className="text-[#374151]">Book</span>
+      </div>
+
+      <h1 className="text-4xl font-bold text-[#071022]">Complete Your Booking</h1>
+
+      <form onSubmit={handleSubmit} className="grid grid-cols-3 gap-8">
+        {/* Booking Form */}
+        <div className="col-span-2 space-y-6">
+          <Card className="bg-white border-[#D1D5DB]">
+            <CardHeader>
+              <CardTitle className="text-xl text-[#071022]">Booking Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Date Picker */}
+              <div>
+                <Label htmlFor="date" className="text-[#374151] mb-2 block">Select Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left h-11 border-[#D1D5DB] rounded-lg"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date ? format(date, "PPP") : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Time Selection */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="startTime" className="text-[#374151] mb-2 block">Start Time</Label>
+                  <Select value={startTime} onValueChange={setStartTime}>
+                    <SelectTrigger className="h-11 border-[#D1D5DB] rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        <SelectValue placeholder="Select time" />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timeOptions.map((time) => (
+                        <SelectItem key={time} value={time}>{time}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="endTime" className="text-[#374151] mb-2 block">End Time</Label>
+                  <Select value={endTime} onValueChange={setEndTime}>
+                    <SelectTrigger className="h-11 border-[#D1D5DB] rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        <SelectValue placeholder="Select time" />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timeOptions.map((time) => (
+                        <SelectItem key={time} value={time}>{time}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {duration > 0 && (
+                <div className="text-sm text-[#9CA3AF]">
+                  Duration: {duration} hour{duration !== 1 ? "s" : ""}
+                </div>
+              )}
+
+              {/* Special Requirements */}
+              <div>
+                <Label htmlFor="requirements" className="text-[#374151] mb-2 block">
+                  Special Requirements (Optional)
+                </Label>
+                <Textarea
+                  id="requirements"
+                  placeholder="Any special requests or requirements..."
+                  value={specialRequirements}
+                  onChange={(e) => setSpecialRequirements(e.target.value)}
+                  className="min-h-[100px] border-[#D1D5DB] rounded-lg"
+                />
+              </div>
+
+              {/* Promo Code */}
+              <div>
+                <Label htmlFor="promo" className="text-[#374151] mb-2 block">Promo Code (Optional)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="promo"
+                    placeholder="Enter promo code"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    className="h-11 border-[#D1D5DB] rounded-lg"
+                  />
+                  <Button type="button" variant="outline" className="border-[#0052FF] text-[#0052FF] hover:bg-[#0052FF] hover:text-white">
+                    Apply
+                  </Button>
+                </div>
+              </div>
+
+              {/* Terms */}
+              <div className="flex items-start gap-2">
+                <Checkbox
+                  id="terms"
+                  checked={agreeToTerms}
+                  onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
+                />
+                <label htmlFor="terms" className="text-sm text-[#374151] cursor-pointer">
+                  I agree to the{" "}
+                  <a href="#" className="text-[#0052FF] hover:underline">
+                    cancellation policy
+                  </a>
+                  {" "}and understand that cancellations must be made 24 hours in advance
+                </label>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex gap-4">
+            <Link to={`/workspaces/${id}`} className="flex-1">
+              <Button type="button" variant="outline" className="w-full h-12 border-[#D1D5DB] text-[#374151]">
+                Back
+              </Button>
+            </Link>
+            <Button
+              type="submit"
+              disabled={!date || !startTime || !endTime || duration === 0 || loading}
+              className="flex-1 h-12 bg-[#0052FF] hover:bg-[#0042CC] text-white"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Confirm Booking"
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {/* Booking Summary */}
+        <div className="col-span-1">
+          <Card className="bg-white border-[#D1D5DB] sticky top-8">
+            <CardHeader>
+              <CardTitle className="text-xl text-[#071022]">Booking Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Workspace Info */}
+              <div>
+                <img
+                  src={workspace.image}
+                  alt={workspace.name}
+                  className="w-full h-32 object-cover rounded-lg mb-3"
+                />
+                <h3 className="font-semibold text-[#071022] mb-1">{workspace.name}</h3>
+                <div className="flex items-center gap-2 text-sm text-[#9CA3AF]">
+                  <MapPin className="w-4 h-4" />
+                  {workspace.location}
+                </div>
+              </div>
+
+              {/* Booking Details */}
+              <div className="space-y-3 pt-4 border-t border-[#D1D5DB]">
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#9CA3AF]">Date:</span>
+                  <span className="font-medium text-[#374151]">
+                    {date ? format(date, "PP") : "Not selected"}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#9CA3AF]">Time:</span>
+                  <span className="font-medium text-[#374151]">
+                    {startTime && endTime ? `${startTime} - ${endTime}` : "Not selected"}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#9CA3AF]">Duration:</span>
+                  <span className="font-medium text-[#374151]">
+                    {duration} hour{duration !== 1 ? "s" : ""}
+                  </span>
+                </div>
+              </div>
+
+              {/* Price Breakdown */}
+              <div className="space-y-3 pt-4 border-t border-[#D1D5DB]">
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#9CA3AF]">
+                    ${workspace.pricePerHour}/hr × {duration} hr{duration !== 1 ? "s" : ""}
+                  </span>
+                  <span className="font-medium text-[#374151]">${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#9CA3AF]">Tax (8%)</span>
+                  <span className="font-medium text-[#374151]">${tax.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-lg font-bold pt-3 border-t border-[#D1D5DB]">
+                  <span className="text-[#071022]">Total</span>
+                  <span className="text-[#0052FF]">${total.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {/* Status Message */}
+              <div className="text-xs text-center text-[#9CA3AF] pt-4 border-t border-[#D1D5DB]">
+                <p>🔒 Your workspace is being held for 10 minutes</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </form>
+    </div>
+  );
+}
