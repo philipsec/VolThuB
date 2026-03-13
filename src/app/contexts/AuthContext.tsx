@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { api } from '../lib/supabase';
+import { api } from '../lib/api';
 import { toast } from 'sonner';
 
 interface User {
@@ -20,6 +20,8 @@ interface AuthContextType {
   signup: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
   signout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  updateProfile: (updates: { firstName?: string; lastName?: string; phone?: string; company?: string; bio?: string }) => Promise<void>;
+  uploadProfileAvatar: (file: File) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -78,12 +80,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signup = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
       // Create user account
-      await api.signup(email, password, firstName, lastName);
+      const result = await api.signup(email, password, firstName, lastName);
       
-      // Automatically sign in after signup
-      await signin(email, password);
-      
-      toast.success('Account created successfully!');
+      // Return the user data for redirection to email verification
+      toast.success('Account created! Please verify your email.');
+      return result;
     } catch (error: any) {
       console.error('Sign up error:', error);
       toast.error(error.message || 'Failed to create account');
@@ -113,6 +114,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateProfile = async (updates: { firstName?: string; lastName?: string; phone?: string; company?: string; bio?: string; }) => {
+    try {
+      const token = session?.access_token || localStorage.getItem('volthub_access_token');
+      if (!token) throw new Error('Not authenticated');
+      const updatedUser = await api.updateProfile(token, updates);
+      setUser(updatedUser);
+      toast.success('Profile updated successfully');
+      return updatedUser;
+    } catch (error: any) {
+      console.error('Profile update error:', error);
+      toast.error(error.message || 'Failed to update profile');
+      throw error;
+    }
+  };
+
+  const uploadProfileAvatar = async (file: File) => {
+    try {
+      const token = session?.access_token || localStorage.getItem('volthub_access_token');
+      if (!token) throw new Error('Not authenticated');
+      const data = await api.uploadProfileAvatar(token, file);
+      setUser(prev => prev ? { ...prev, profilePicUrl: data.profilePicUrl } : prev);
+      toast.success('Profile picture uploaded successfully');
+    } catch (error: any) {
+      console.error('Profile avatar upload error:', error);
+      toast.error(error.message || 'Failed to upload profile picture');
+      throw error;
+    }
+  };
+
   const resetPassword = async (email: string) => {
     try {
       await api.resetPassword(email);
@@ -134,6 +164,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signup,
         signout,
         resetPassword,
+        updateProfile,
+        uploadProfileAvatar,
       }}
     >
       {children}

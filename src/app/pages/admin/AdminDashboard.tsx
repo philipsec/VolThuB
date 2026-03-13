@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Users, Building2, Calendar, DollarSign, TrendingUp, Activity } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { api } from "../../lib/supabase";
+import { api } from "../../lib/api";
 import { toast } from "sonner";
 
 export default function AdminDashboard() {

@@ -30,7 +30,7 @@ export default function BookingPage() {
     return (
       <div className="max-w-7xl mx-auto text-center py-16">
         <h1 className="text-3xl font-bold text-[#071022] mb-4">Workspace not found</h1>
-        <Link to="/workspaces">
+        <Link to="/portal/workspaces">
           <Button className="bg-[#0052FF] hover:bg-[#0042CC] text-white">
             Back to Browse
           </Button>
@@ -66,14 +66,14 @@ export default function BookingPage() {
     await new Promise(resolve => setTimeout(resolve, 1500));
     setLoading(false);
     const bookingId = `VOL-2026-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-    navigate(`/booking-confirmation/${bookingId}`);
+    navigate(`/portal/booking-confirmation/${bookingId}`);
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 space-y-4 md:space-y-6">
       {/* Back Button */}
-      <Link to={`/workspaces/${id}`}>
-        <Button variant="ghost" className="text-[#0052FF] hover:bg-[#F3F4F6]">
+      <Link to={`/portal/workspaces/${id}`}>
+        <Button variant="ghost" className="text-[#0052FF] hover:bg-[#F3F4F6] -ml-2">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Workspace
         </Button>
@@ -81,23 +81,23 @@ export default function BookingPage() {
 
       {/* Breadcrumb */}
       <div className="text-sm text-[#9CA3AF] flex items-center gap-2">
-        <Link to="/workspaces" className="text-[#0052FF] hover:underline">Workspaces</Link>
+        <Link to="/portal/workspaces" className="text-[#0052FF] hover:underline">Workspaces</Link>
         <span>/</span>
-        <Link to={`/workspaces/${id}`} className="text-[#0052FF] hover:underline">{workspace.name}</Link>
+        <Link to={`/portal/workspaces/${id}`} className="text-[#0052FF] hover:underline">{workspace.name}</Link>
         <span>/</span>
         <span className="text-[#374151]">Book</span>
       </div>
 
-      <h1 className="text-4xl font-bold text-[#071022]">Complete Your Booking</h1>
+      <h1 className="text-3xl md:text-4xl font-bold text-[#071022]">Complete Your Booking</h1>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-3 gap-8">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Booking Form */}
-        <div className="col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 md:space-y-6">
           <Card className="bg-white border-[#D1D5DB]">
             <CardHeader>
               <CardTitle className="text-xl text-[#071022]">Booking Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 md:space-y-6">
               {/* Date Picker */}
               <div>
                 <Label htmlFor="date" className="text-[#374151] mb-2 block">Select Date</Label>
@@ -124,7 +124,7 @@ export default function BookingPage() {
               </div>
 
               {/* Time Selection */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="startTime" className="text-[#374151] mb-2 block">Start Time</Label>
                   <Select value={startTime} onValueChange={setStartTime}>
@@ -183,7 +183,7 @@ export default function BookingPage() {
               {/* Promo Code */}
               <div>
                 <Label htmlFor="promo" className="text-[#374151] mb-2 block">Promo Code (Optional)</Label>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Input
                     id="promo"
                     placeholder="Enter promo code"
@@ -191,7 +191,7 @@ export default function BookingPage() {
                     onChange={(e) => setPromoCode(e.target.value)}
                     className="h-11 border-[#D1D5DB] rounded-lg"
                   />
-                  <Button type="button" variant="outline" className="border-[#0052FF] text-[#0052FF] hover:bg-[#0052FF] hover:text-white">
+                  <Button type="button" variant="outline" className="border-[#0052FF] text-[#0052FF] hover:bg-[#0052FF] hover:text-white h-11">
                     Apply
                   </Button>
                 </div>
@@ -215,8 +215,8 @@ export default function BookingPage() {
             </CardContent>
           </Card>
 
-          <div className="flex gap-4">
-            <Link to={`/workspaces/${id}`} className="flex-1">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Link to={`/portal/workspaces/${id}`} className="flex-1">
               <Button type="button" variant="outline" className="w-full h-12 border-[#D1D5DB] text-[#374151]">
                 Back
               </Button>
@@ -239,18 +239,18 @@ export default function BookingPage() {
         </div>
 
         {/* Booking Summary */}
-        <div className="col-span-1">
-          <Card className="bg-white border-[#D1D5DB] sticky top-8">
+        <div className="lg:col-span-1">
+          <Card className="bg-white border-[#D1D5DB] lg:sticky lg:top-8">
             <CardHeader>
               <CardTitle className="text-xl text-[#071022]">Booking Summary</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 md:space-y-6">
               {/* Workspace Info */}
               <div>
                 <img
                   src={workspace.image}
                   alt={workspace.name}
-                  className="w-full h-32 object-cover rounded-lg mb-3"
+                  className="w-full h-32 md:h-40 object-cover rounded-lg mb-3"
                 />
                 <h3 className="font-semibold text-[#071022] mb-1">{workspace.name}</h3>
                 <div className="flex items-center gap-2 text-sm text-[#9CA3AF]">

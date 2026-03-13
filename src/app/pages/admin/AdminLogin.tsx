@@ -4,7 +4,7 @@ import { Eye, EyeOff, Mail, Lock, Loader2, Shield } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
-import { api } from "../../lib/supabase";
+import { api } from "../../lib/api";
 import { toast } from "sonner";
 
 export default function AdminLogin() {
@@ -26,7 +26,7 @@ export default function AdminLogin() {
       // Store admin token
       if (data.session?.access_token) {
         localStorage.setItem('volthub_admin_token', data.session.access_token);
-        localStorage.setItem('volthub_admin_profile', JSON.stringify(data.profile));
+        localStorage.setItem('volthub_admin_profile', JSON.stringify(data.admin || data.profile));
       }
       
       toast.success('Welcome back, Admin!');

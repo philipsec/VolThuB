@@ -6,7 +6,8 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../../components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
-import { api } from "../../lib/supabase";
+import ImageUpload from "../../components/ImageUpload";
+import { api } from "../../lib/api";
 import { toast } from "sonner";
 import { useDataInit } from "../../hooks/useDataInit";
 
@@ -38,8 +39,8 @@ export default function AdminWorkspaces() {
 
   const loadWorkspaces = async () => {
     try {
-      const { workspaces: data } = await api.getWorkspaces();
-      setWorkspaces(data || []);
+      const data = await api.getWorkspaces();
+      setWorkspaces(Array.isArray(data) ? data : []);
     } catch (error: any) {
       toast.error(error.message || 'Failed to load workspaces');
     } finally {
@@ -216,26 +217,18 @@ export default function AdminWorkspaces() {
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="image">Main Image URL</Label>
-                <Input
-                  id="image"
-                  value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  placeholder="https://..."
-                  required
-                />
-              </div>
+              <ImageUpload
+                label="Main Image"
+                onImageUpload={(url) => setFormData({ ...formData, image: url })}
+                currentImage={formData.image}
+              />
 
-              <div>
-                <Label htmlFor="images">Additional Images (comma-separated URLs)</Label>
-                <Input
-                  id="images"
-                  value={formData.images}
-                  onChange={(e) => setFormData({ ...formData, images: e.target.value })}
-                  placeholder="https://..., https://..."
-                />
-              </div>
+              <ImageUpload
+                label="Additional Images"
+                multiple={true}
+                onMultipleUpload={(urls) => setFormData({ ...formData, images: urls.join(',') })}
+                currentImage={formData.images ? formData.images.split(',')[0] : undefined}
+              />
 
               <div>
                 <Label htmlFor="amenities">Amenities (comma-separated)</Label>

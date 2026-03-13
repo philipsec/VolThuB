@@ -60,8 +60,22 @@ export default function Signup() {
     setLoading(true);
     
     try {
-      await signup(formData.email, formData.password, formData.firstName, formData.lastName);
-      navigate("/");
+      const result = await signup(formData.email, formData.password, formData.firstName, formData.lastName);
+
+      // Persist email + dev code so link-based verification works too
+      localStorage.setItem('volthub_verify_email', formData.email);
+      if (result.devVerificationCode) {
+        localStorage.setItem('volthub_dev_verification_code', result.devVerificationCode);
+      }
+
+      // Redirect to email verification
+      navigate("/auth/verify-email", {
+        state: {
+          email: formData.email,
+          userId: result.user?.id,
+          devVerificationCode: result.devVerificationCode,
+        }
+      });
     } catch (error: any) {
       setError(error.message || "Failed to create account");
     } finally {

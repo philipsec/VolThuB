@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [adminProfile, setAdminProfile] = useState<any>(null);
+  const [adminProfile, setAdminProfile] = useState<any>({ name: 'Admin', firstName: 'Admin', lastName: 'User' });
 
   useEffect(() => {
     // Check for admin token
@@ -18,7 +18,12 @@ export default function AdminLayout() {
     }
 
     if (profile) {
-      setAdminProfile(JSON.parse(profile));
+      try {
+        setAdminProfile(JSON.parse(profile));
+      } catch (error) {
+        console.error('Error parsing admin profile:', error);
+        localStorage.removeItem('volthub_admin_profile');
+      }
     }
   }, [navigate]);
 
@@ -34,10 +39,6 @@ export default function AdminLayout() {
     localStorage.removeItem('volthub_admin_profile');
     navigate("/admin/login");
   };
-
-  if (!adminProfile) {
-    return null;
-  }
 
   return (
     <div className="flex min-h-screen bg-[#F3F4F6]">

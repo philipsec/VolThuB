@@ -4,7 +4,7 @@ import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
-import { api } from "../../lib/supabase";
+import { api } from "../../lib/api";
 import { toast } from "sonner";
 
 export default function AdminBookings() {
@@ -22,8 +22,8 @@ export default function AdminBookings() {
       const token = localStorage.getItem('volthub_admin_token');
       if (!token) return;
 
-      const { bookings: data } = await api.getAllBookings(token);
-      setBookings(data || []);
+      const data = await api.getAllBookings(token);
+      setBookings(Array.isArray(data) ? data : []);
     } catch (error: any) {
       toast.error(error.message || 'Failed to load bookings');
     } finally {

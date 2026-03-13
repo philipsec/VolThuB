@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Calendar, Clock, MapPin, MoreVertical } from "lucide-react";
 import { Card, CardContent } from "../components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
@@ -10,11 +10,55 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
-import { bookings } from "../data/workspaces";
+import { useAuth } from "../contexts/AuthContext";
+import { api } from "../lib/api";
 
 export default function MyBookings() {
+  const { session } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const loadBookings = async () => {
+      if (!session?.access_token) {
+        setBookings([]);
+        return;
+      }
+      setLoading(true);
+      try {
+        const result = await api.getBookings(session.access_token);
+        setBookings(result.bookings || []);
+      } catch (error: any) {
+        console.error('Fetch bookings error:', error);
+        alert(error?.message || 'Unable to load bookings');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadBookings();
+  }, [session]);
+
+  const cancelBooking = async (bookingId: string) => {
+    if (!session?.access_token) return;
+
+    const confirmation = window.confirm('Cancel this booking?');
+    if (!confirmation) return;
+
+    try {
+      setLoading(true);
+      const cancelled = await api.cancelBooking(session.access_token, bookingId);
+      setBookings((prev) => prev.map((booking) => booking.id === bookingId ? { ...booking, ...cancelled } : booking));
+      alert('Booking cancelled successfully');
+    } catch (error: any) {
+      console.error('Cancel booking error:', error);
+      alert(error?.message || 'Could not cancel booking');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filterBookings = () => {
     let filtered = bookings;
@@ -100,9 +144,13 @@ export default function MyBookings() {
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-8">
-          {filteredBookings.length > 0 ? (
-            <div className="space-y-4">
-              {filteredBookings.map((booking) => (
+          {loading ? (
+          <div className="text-center py-12">
+            <p className="text-[#9CA3AF]">Loading bookings...</p>
+          </div>
+        ) : filteredBookings.length > 0 ? (
+          <div className="space-y-4">
+            {filteredBookings.map((booking) => (
                 <Card key={booking.id} className="bg-white border-[#D1D5DB] shadow-sm hover:shadow-md transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-6">
@@ -169,7 +217,12 @@ export default function MyBookings() {
                             <>
                               <DropdownMenuItem>View Details</DropdownMenuItem>
                               <DropdownMenuItem>Reschedule</DropdownMenuItem>
-                              <DropdownMenuItem className="text-[#EF4444]">Cancel Booking</DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-[#EF4444]"
+                                onSelect={() => cancelBooking(booking.id)}
+                              >
+                                Cancel Booking
+                              </DropdownMenuItem>
                             </>
                           )}
                           <DropdownMenuItem>Download Receipt</DropdownMenuItem>

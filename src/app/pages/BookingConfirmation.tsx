@@ -141,12 +141,12 @@ export default function BookingConfirmation() {
 
             {/* Navigation Buttons */}
             <div className="flex gap-4">
-              <Link to="/my-bookings" className="flex-1">
+              <Link to="/portal/my-bookings" className="flex-1">
                 <Button variant="outline" className="w-full h-12 border-[#D1D5DB] text-[#374151]">
                   View My Bookings
                 </Button>
               </Link>
-              <Link to="/" className="flex-1">
+              <Link to="/portal/" className="flex-1">
                 <Button className="w-full h-12 bg-[#0052FF] hover:bg-[#0042CC] text-white">
                   Back to Dashboard
                 </Button>
@@ -154,7 +154,7 @@ export default function BookingConfirmation() {
             </div>
 
             <div className="text-center mt-6">
-              <Link to="/workspaces" className="text-sm text-[#0052FF] hover:underline">
+              <Link to="/portal/workspaces" className="text-sm text-[#0052FF] hover:underline">
                 Browse More Spaces →
               </Link>
             </div>

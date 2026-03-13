@@ -5,7 +5,6 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useAuth } from "../contexts/AuthContext";
-
 export default function Login() {
   const navigate = useNavigate();
   const { signin } = useAuth();
@@ -24,9 +23,18 @@ export default function Login() {
     
     try {
       await signin(formData.email, formData.password);
-      navigate("/");
+      navigate("/portal/");
     } catch (error: any) {
-      setError(error.message || "Failed to sign in");
+      // Check if verification is required
+      if (error.message && error.message.includes('verify your email')) {
+        navigate("/auth/verify-email", {
+          state: {
+            email: formData.email,
+          }
+        });
+      } else {
+        setError(error.message || "Failed to sign in");
+      }
     } finally {
       setLoading(false);
     }

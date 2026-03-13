@@ -3,7 +3,7 @@ import { Search, Trash2, Mail, Calendar } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
-import { api } from "../../lib/supabase";
+import { api } from "../../lib/api";
 import { toast } from "sonner";
 
 export default function AdminUsers() {
@@ -20,8 +20,8 @@ export default function AdminUsers() {
       const token = localStorage.getItem('volthub_admin_token');
       if (!token) return;
 
-      const { users: data } = await api.getAllUsers(token);
-      setUsers(data.filter((u: any) => !u.isAdmin) || []);
+      const data = await api.getAllUsers(token);
+      setUsers(Array.isArray(data) ? data : []);
     } catch (error: any) {
       toast.error(error.message || 'Failed to load users');
     } finally {

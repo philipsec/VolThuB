@@ -9,7 +9,7 @@ export default function AuthLayout() {
   // Redirect to dashboard if already logged in
   useEffect(() => {
     if (!loading && user) {
-      navigate("/");
+      navigate("/portal/");
     }
   }, [user, loading, navigate]);
 

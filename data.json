@@ -1,0 +1,69 @@
+{
+  "users": [
+    {
+      "id": "n5ul7y86w",
+      "email": "test+dev@example.com",
+      "password": "Password123!",
+      "firstName": "Test",
+      "lastName": "Dev",
+      "name": "Test Dev",
+      "emailVerified": true,
+      "createdAt": "2026-03-13T19:44:02.060Z"
+    },
+    {
+      "id": "gkswenczj",
+      "email": "onuohaphilip333@gmail.com",
+      "password": "123User$",
+      "firstName": "Philip",
+      "lastName": "Onuoha",
+      "name": "Philip Onuoha",
+      "emailVerified": true,
+      "createdAt": "2026-03-13T19:48:06.724Z"
+    }
+  ],
+  "workspaces": [
+    {
+      "id": "1",
+      "name": "Tech Hub Downtown",
+      "location": "San Francisco, CA",
+      "description": "Modern coworking space with high-speed internet and meeting rooms",
+      "type": "coworking",
+      "capacity": 50,
+      "availability": "available",
+      "price": 25,
+      "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=500",
+      "amenities": "WiFi, Coffee, Meeting Rooms, Parking",
+      "createdAt": "2026-03-13T19:28:15.826Z"
+    },
+    {
+      "id": "2",
+      "name": "Creative Studio",
+      "location": "New York, NY",
+      "description": "Design-focused workspace with creative tools",
+      "type": "studio",
+      "capacity": 30,
+      "availability": "available",
+      "price": 35,
+      "image": "https://images.unsplash.com/photo-1559027615-cd61628902d4?w=500",
+      "amenities": "Desks, Design Software, Monitors, Kitchen",
+      "createdAt": "2026-03-13T19:28:15.828Z"
+    },
+    {
+      "id": "3",
+      "name": "Startup Incubator",
+      "location": "Austin, TX",
+      "description": "Support for early-stage startups",
+      "type": "incubator",
+      "capacity": 20,
+      "availability": "available",
+      "price": 15,
+      "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=500",
+      "amenities": "Mentorship, Networking, Demo Day",
+      "createdAt": "2026-03-13T19:28:15.828Z"
+    }
+  ],
+  "bookings": [],
+  "admins": [],
+  "verificationTokens": [],
+  "passwordResetTokens": []
+}

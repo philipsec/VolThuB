@@ -8,7 +8,7 @@ import { Checkbox } from "../components/ui/checkbox";
 import { Label } from "../components/ui/label";
 import { Slider } from "../components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { api } from "../lib/supabase";
+import { api } from "../lib/api";
 import { useDataInit } from "../hooks/useDataInit";
 
 interface Workspace {
@@ -36,6 +36,7 @@ export default function WorkspacesBrowse() {
   const [priceRange, setPriceRange] = useState([0, 100]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [selectedCapacity, setSelectedCapacity] = useState<string[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     async function loadWorkspaces() {
@@ -120,15 +121,15 @@ export default function WorkspacesBrowse() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-[#071022] mb-2">Explore Workspaces</h1>
-        <p className="text-lg text-[#9CA3AF]">Find the perfect workspace for your needs</p>
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-[#071022] mb-2">Explore Workspaces</h1>
+        <p className="text-base md:text-lg text-[#9CA3AF]">Find the perfect workspace for your needs</p>
       </div>
 
       {/* Search and Sort Bar */}
-      <div className="flex flex-col md:flex-row gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row gap-4 mb-6 md:mb-8">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9CA3AF]" />
           <Input
@@ -138,24 +139,34 @@ export default function WorkspacesBrowse() {
             className="pl-10 h-12 border-[#D1D5DB] rounded-lg"
           />
         </div>
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-full md:w-[200px] h-12 border-[#D1D5DB] rounded-lg">
-            <SelectValue placeholder="Sort by" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="popular">Most Popular</SelectItem>
-            <SelectItem value="price-low">Lowest Price</SelectItem>
-            <SelectItem value="price-high">Highest Price</SelectItem>
-            <SelectItem value="rating">Highest Rated</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setShowFilters(!showFilters)}
+            className="sm:hidden border-[#0052FF] text-[#0052FF] hover:bg-[#0052FF] hover:text-white h-12 px-4"
+          >
+            <SlidersHorizontal className="w-4 h-4 mr-2" />
+            Filters
+          </Button>
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-full sm:w-[200px] h-12 border-[#D1D5DB] rounded-lg">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="popular">Most Popular</SelectItem>
+              <SelectItem value="price-low">Lowest Price</SelectItem>
+              <SelectItem value="price-high">Highest Price</SelectItem>
+              <SelectItem value="rating">Highest Rated</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      <div className="flex gap-8">
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
         {/* Filters Sidebar */}
-        <aside className="w-[280px] shrink-0">
-          <Card className="bg-white border-[#D1D5DB] sticky top-8">
-            <CardContent className="p-6">
+        <aside className={`w-full lg:w-[280px] lg:shrink-0 ${showFilters ? 'block' : 'hidden'} lg:block`}>
+          <Card className="bg-white border-[#D1D5DB] lg:sticky lg:top-8">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-[#071022] flex items-center gap-2">
                   <SlidersHorizontal className="w-5 h-5" />
@@ -240,16 +251,16 @@ export default function WorkspacesBrowse() {
             Showing {filteredWorkspaces.length} of {workspaces.length} workspaces
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
             {filteredWorkspaces.map((workspace) => (
               <Card key={workspace.id} className="bg-white border-[#D1D5DB] shadow-sm hover:shadow-lg transition-all overflow-hidden group">
-                <div className="relative h-56 overflow-hidden">
+                <div className="relative h-48 md:h-56 overflow-hidden">
                   <img
                     src={workspace.image}
                     alt={workspace.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <span className={`absolute top-4 right-4 px-3 py-1 text-white text-xs rounded-full ${
+                  <span className={`absolute top-3 right-3 md:top-4 md:right-4 px-2 py-1 md:px-3 text-white text-xs rounded-full ${
                     workspace.availability === "available" ? "bg-[#10B981]" :
                     workspace.availability === "limited" ? "bg-[#F59E0B]" : "bg-[#EF4444]"
                   }`}>
@@ -258,7 +269,7 @@ export default function WorkspacesBrowse() {
                   </span>
                 </div>
 
-                <CardContent className="p-6">
+                <CardContent className="p-4 md:p-6">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-1 text-sm text-[#F59E0B]">
                       ⭐ {workspace.rating}
@@ -273,12 +284,12 @@ export default function WorkspacesBrowse() {
                     {workspace.location}
                   </div>
 
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#F3F4F6] text-[#374151] text-xs rounded-full">
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 md:px-3 bg-[#F3F4F6] text-[#374151] text-xs rounded-full">
                       <Users className="w-3 h-3" />
                       Seats: {workspace.capacity}
                     </span>
-                    <span className="px-3 py-1 bg-[#F3F4F6] text-[#374151] text-xs rounded-full">
+                    <span className="px-2 py-1 md:px-3 bg-[#F3F4F6] text-[#374151] text-xs rounded-full">
                       {workspace.type.replace("-", " ")}
                     </span>
                   </div>
@@ -296,19 +307,19 @@ export default function WorkspacesBrowse() {
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-[#D1D5DB]">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t border-[#D1D5DB] gap-3">
                     <div>
                       <span className="text-2xl font-bold text-[#0052FF]">${workspace.pricePerHour}</span>
                       <span className="text-sm text-[#9CA3AF]">/hour</span>
                     </div>
-                    <div className="flex gap-2">
-                      <Link to={`/workspaces/${workspace.id}`}>
-                        <Button variant="outline" className="border-[#0052FF] text-[#0052FF] hover:bg-[#0052FF] hover:text-white">
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Link to={`/portal/workspaces/${workspace.id}`} className="w-full sm:w-auto">
+                        <Button variant="outline" className="w-full border-[#0052FF] text-[#0052FF] hover:bg-[#0052FF] hover:text-white">
                           View Details
                         </Button>
                       </Link>
-                      <Link to={`/book/${workspace.id}`}>
-                        <Button className="bg-[#0052FF] hover:bg-[#0042CC] text-white">
+                      <Link to={`/portal/book/${workspace.id}`} className="w-full sm:w-auto">
+                        <Button className="w-full bg-[#0052FF] hover:bg-[#0042CC] text-white">
                           Book Now
                         </Button>
                       </Link>
@@ -320,8 +331,8 @@ export default function WorkspacesBrowse() {
           </div>
 
           {filteredWorkspaces.length === 0 && (
-            <div className="text-center py-16">
-              <Search className="w-16 h-16 text-[#9CA3AF] mx-auto mb-4" />
+            <div className="text-center py-12 md:py-16">
+              <Search className="w-12 h-12 md:w-16 md:h-16 text-[#9CA3AF] mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-[#071022] mb-2">No workspaces found</h3>
               <p className="text-[#9CA3AF] mb-6">Try adjusting your filters or search query</p>
               <Button onClick={clearFilters} className="bg-[#0052FF] hover:bg-[#0042CC] text-white">

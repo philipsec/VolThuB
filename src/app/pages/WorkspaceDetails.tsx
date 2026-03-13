@@ -26,7 +26,7 @@ export default function WorkspaceDetails() {
     return (
       <div className="max-w-7xl mx-auto text-center py-16">
         <h1 className="text-3xl font-bold text-[#071022] mb-4">Workspace not found</h1>
-        <Link to="/workspaces">
+        <Link to="/portal/workspaces">
           <Button className="bg-[#0052FF] hover:bg-[#0042CC] text-white">
             Back to Browse
           </Button>
@@ -38,30 +38,30 @@ export default function WorkspaceDetails() {
   const similarWorkspaces = workspaces.filter(w => w.id !== id && w.type === workspace.type).slice(0, 3);
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 space-y-6 md:space-y-8">
       {/* Back Button */}
-      <Link to="/workspaces">
-        <Button variant="ghost" className="text-[#0052FF] hover:bg-[#F3F4F6]">
+      <Link to="/portal/workspaces">
+        <Button variant="ghost" className="text-[#0052FF] hover:bg-[#F3F4F6] -ml-2">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Browse
         </Button>
       </Link>
 
       {/* Image Gallery */}
-      <div className="grid grid-cols-4 gap-4">
-        <div className="col-span-3">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="md:col-span-3">
           <img
             src={workspace.images[selectedImage]}
             alt={workspace.name}
-            className="w-full h-[500px] object-cover rounded-xl"
+            className="w-full h-64 md:h-[500px] object-cover rounded-xl"
           />
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="hidden md:flex md:flex-col gap-4">
           {workspace.images.map((image, index) => (
             <button
               key={index}
               onClick={() => setSelectedImage(index)}
-              className={`relative h-[160px] rounded-lg overflow-hidden ${
+              className={`relative h-[120px] rounded-lg overflow-hidden ${
                 selectedImage === index ? "ring-2 ring-[#0052FF]" : ""
               }`}
             >
@@ -75,14 +75,35 @@ export default function WorkspaceDetails() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-8">
+      {/* Mobile Image Thumbnails */}
+      <div className="md:hidden">
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {workspace.images.map((image, index) => (
+            <button
+              key={index}
+              onClick={() => setSelectedImage(index)}
+              className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden ${
+                selectedImage === index ? "ring-2 ring-[#0052FF]" : ""
+              }`}
+            >
+              <img
+                src={image}
+                alt={`${workspace.name} ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Main Content */}
-        <div className="col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6 md:space-y-8">
           {/* Header */}
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h1 className="text-4xl font-bold text-[#071022]">{workspace.name}</h1>
-              <span className={`px-4 py-2 text-white text-sm rounded-full ${
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+              <h1 className="text-3xl md:text-4xl font-bold text-[#071022]">{workspace.name}</h1>
+              <span className={`px-3 py-2 md:px-4 text-white text-sm rounded-full self-start sm:self-auto ${
                 workspace.availability === "available" ? "bg-[#10B981]" :
                 workspace.availability === "limited" ? "bg-[#F59E0B]" : "bg-[#EF4444]"
               }`}>
@@ -91,7 +112,7 @@ export default function WorkspaceDetails() {
               </span>
             </div>
 
-            <div className="flex items-center gap-4 mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
               <div className="flex items-center gap-1 text-[#F59E0B]">
                 <Star className="w-5 h-5 fill-current" />
                 <span className="font-semibold">{workspace.rating}</span>
@@ -103,12 +124,12 @@ export default function WorkspaceDetails() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <span className="inline-flex items-center gap-2 px-4 py-2 bg-[#F3F4F6] text-[#374151] rounded-lg">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="inline-flex items-center gap-2 px-3 py-2 md:px-4 bg-[#F3F4F6] text-[#374151] rounded-lg">
                 <Users className="w-4 h-4" />
                 Capacity: {workspace.capacity} people
               </span>
-              <span className="px-4 py-2 bg-[#F3F4F6] text-[#374151] rounded-lg capitalize">
+              <span className="px-3 py-2 md:px-4 bg-[#F3F4F6] text-[#374151] rounded-lg capitalize">
                 {workspace.type.replace("-", " ")}
               </span>
             </div>
@@ -122,12 +143,12 @@ export default function WorkspaceDetails() {
 
           {/* Amenities */}
           <div>
-            <h2 className="text-2xl font-bold text-[#071022] mb-6">Amenities</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <h2 className="text-2xl font-bold text-[#071022] mb-4 md:mb-6">Amenities</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
               {workspace.amenities.map((amenity) => {
                 const Icon = amenityIcons[amenity] || Wifi;
                 return (
-                  <div key={amenity} className="flex items-center gap-3 p-4 bg-[#F3F4F6] rounded-lg">
+                  <div key={amenity} className="flex items-center gap-3 p-3 md:p-4 bg-[#F3F4F6] rounded-lg">
                     <Icon className="w-5 h-5 text-[#0052FF]" />
                     <span className="text-[#374151]">{amenity}</span>
                   </div>
@@ -136,20 +157,23 @@ export default function WorkspaceDetails() {
             </div>
           </div>
 
-          {/* Location Map Placeholder */}
+          {/* Location Map Embed */}
           <div>
             <h2 className="text-2xl font-bold text-[#071022] mb-4">Location</h2>
-            <div className="w-full h-[300px] bg-[#F3F4F6] rounded-xl flex items-center justify-center">
-              <div className="text-center">
-                <MapPin className="w-12 h-12 text-[#9CA3AF] mx-auto mb-2" />
-                <p className="text-[#9CA3AF]">{workspace.location}</p>
-              </div>
+            <div className="w-full h-48 md:h-[300px] rounded-xl overflow-hidden border border-[#D1D5DB]">
+              <iframe
+                title="Workspace location map"
+                src={`https://www.google.com/maps?q=${encodeURIComponent(workspace.location)}&output=embed`}
+                className="w-full h-full"
+                loading="lazy"
+              />
             </div>
+            <p className="mt-2 text-sm text-[#9CA3AF]">{workspace.location}</p>
           </div>
 
           {/* Reviews Section */}
           <div>
-            <h2 className="text-2xl font-bold text-[#071022] mb-6">Reviews</h2>
+            <h2 className="text-2xl font-bold text-[#071022] mb-4 md:mb-6">Reviews</h2>
             <div className="space-y-4">
               {[
                 { name: "Sarah Johnson", rating: 5, date: "2 days ago", comment: "Excellent workspace! Very professional and well-maintained." },
@@ -157,24 +181,26 @@ export default function WorkspaceDetails() {
                 { name: "Emily Rodriguez", rating: 4, date: "2 weeks ago", comment: "Good workspace overall. Coffee could be better." },
               ].map((review, index) => (
                 <Card key={index} className="bg-white border-[#D1D5DB]">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-[#0052FF] rounded-full flex items-center justify-center text-white font-semibold">
-                          {review.name.charAt(0)}
-                        </div>
-                        <div>
-                          <div className="font-semibold text-[#071022]">{review.name}</div>
-                          <div className="text-sm text-[#9CA3AF]">{review.date}</div>
-                        </div>
+                  <CardContent className="p-4 md:p-6">
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-8 h-8 md:w-10 md:h-10 bg-[#0052FF] rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                        {review.name.charAt(0)}
                       </div>
-                      <div className="flex items-center gap-1 text-[#F59E0B]">
-                        {Array.from({ length: review.rating }).map((_, i) => (
-                          <Star key={i} className="w-4 h-4 fill-current" />
-                        ))}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                          <div>
+                            <div className="font-semibold text-[#071022]">{review.name}</div>
+                            <div className="text-sm text-[#9CA3AF]">{review.date}</div>
+                          </div>
+                          <div className="flex items-center gap-1 text-[#F59E0B]">
+                            {Array.from({ length: review.rating }).map((_, i) => (
+                              <Star key={i} className="w-4 h-4 fill-current" />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-[#374151] mt-2">{review.comment}</p>
                       </div>
                     </div>
-                    <p className="text-[#374151]">{review.comment}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -183,36 +209,36 @@ export default function WorkspaceDetails() {
         </div>
 
         {/* Booking Sidebar */}
-        <div className="col-span-1">
-          <Card className="bg-white border-[#D1D5DB] sticky top-8">
-            <CardContent className="p-6">
+        <div className="lg:col-span-1">
+          <Card className="bg-white border-[#D1D5DB] lg:sticky lg:top-8">
+            <CardContent className="p-4 md:p-6">
               <div className="mb-6">
-                <div className="text-4xl font-bold text-[#0052FF] mb-1">
+                <div className="text-3xl md:text-4xl font-bold text-[#0052FF] mb-1">
                   ${workspace.pricePerHour}
-                  <span className="text-lg text-[#9CA3AF] font-normal">/hour</span>
+                  <span className="text-base md:text-lg text-[#9CA3AF] font-normal">/hour</span>
                 </div>
                 <p className="text-sm text-[#9CA3AF]">Plus applicable taxes</p>
               </div>
 
-              <div className="space-y-4 mb-6">
-                <div className="p-4 bg-[#F3F4F6] rounded-lg">
+              <div className="space-y-3 md:space-y-4 mb-6">
+                <div className="p-3 md:p-4 bg-[#F3F4F6] rounded-lg">
                   <div className="text-sm text-[#9CA3AF] mb-1">Workspace Type</div>
                   <div className="font-semibold text-[#071022] capitalize">{workspace.type.replace("-", " ")}</div>
                 </div>
 
-                <div className="p-4 bg-[#F3F4F6] rounded-lg">
+                <div className="p-3 md:p-4 bg-[#F3F4F6] rounded-lg">
                   <div className="text-sm text-[#9CA3AF] mb-1">Capacity</div>
                   <div className="font-semibold text-[#071022]">{workspace.capacity} people</div>
                 </div>
 
-                <div className="p-4 bg-[#F3F4F6] rounded-lg">
+                <div className="p-3 md:p-4 bg-[#F3F4F6] rounded-lg">
                   <div className="text-sm text-[#9CA3AF] mb-1">Minimum Booking</div>
                   <div className="font-semibold text-[#071022]">1 hour</div>
                 </div>
               </div>
 
-              <Link to={`/book/${workspace.id}`}>
-                <Button className="w-full h-12 bg-[#0052FF] hover:bg-[#0042CC] text-white text-lg">
+              <Link to={`/portal/book/${workspace.id}`}>
+                <Button className="w-full h-12 bg-[#0052FF] hover:bg-[#0042CC] text-white text-base md:text-lg">
                   Book This Space
                 </Button>
               </Link>
@@ -228,18 +254,18 @@ export default function WorkspaceDetails() {
       {/* Similar Workspaces */}
       {similarWorkspaces.length > 0 && (
         <div>
-          <h2 className="text-2xl font-bold text-[#071022] mb-6">Similar Workspaces</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <h2 className="text-2xl font-bold text-[#071022] mb-4 md:mb-6">Similar Workspaces</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {similarWorkspaces.map((similar) => (
               <Card key={similar.id} className="bg-white border-[#D1D5DB] shadow-sm hover:shadow-lg transition-shadow overflow-hidden group">
-                <div className="relative h-48 overflow-hidden">
+                <div className="relative h-40 md:h-48 overflow-hidden">
                   <img
                     src={similar.image}
                     alt={similar.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                <CardContent className="p-6">
+                <CardContent className="p-4 md:p-6">
                   <div className="flex items-center gap-1 text-sm text-[#F59E0B] mb-2">
                     ⭐ {similar.rating}
                   </div>
@@ -247,10 +273,10 @@ export default function WorkspaceDetails() {
                   <p className="text-sm text-[#9CA3AF] mb-4">{similar.location}</p>
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-2xl font-bold text-[#0052FF]">${similar.pricePerHour}</span>
+                      <span className="text-xl md:text-2xl font-bold text-[#0052FF]">${similar.pricePerHour}</span>
                       <span className="text-sm text-[#9CA3AF]">/hr</span>
                     </div>
-                    <Link to={`/workspaces/${similar.id}`}>
+                    <Link to={`/portal/workspaces/${similar.id}`}>
                       <Button className="bg-[#0052FF] hover:bg-[#0042CC] text-white">
                         View
                       </Button>

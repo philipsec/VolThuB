@@ -866,7 +866,7 @@ Feedback:
 
 ## 📝 Design Handoff Notes
 
-**For Figma AI or Design Tools:**
+**For  AI or Design Tools:**
 
 When generating designs, ensure:
 - All colors match the palette (use #hex codes exactly)

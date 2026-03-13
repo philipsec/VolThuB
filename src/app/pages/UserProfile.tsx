@@ -1,22 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, Lock, Shield, Bell, Trash2, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { api } from "../lib/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Button } from "../components/ui/button";
 import { Textarea } from "../components/ui/textarea";
 import { Switch } from "../components/ui/switch";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function UserProfile() {
+  const { user, session, updateProfile, uploadProfileAvatar } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [profileMessage, setProfileMessage] = useState('');
   const [profileData, setProfileData] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    phone: "+1 (555) 123-4567",
-    bio: "Freelance designer and developer",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    company: "",
+    bio: "",
+    profilePicUrl: "",
   });
+  const [avatarPreview, setAvatarPreview] = useState("");
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -31,12 +40,61 @@ export default function UserProfile() {
     reminders: true,
   });
 
+  useEffect(() => {
+    if (user?.emailVerified !== undefined) {
+      setEmailVerified(user.emailVerified);
+    }
+
+    if (user) {
+      setProfileData({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        company: user.company || "",
+        bio: user.bio || "",
+        profilePicUrl: user.profilePicUrl || "",
+      });
+      setAvatarPreview(user.profilePicUrl || "");
+    }
+  }, [user]);
+
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setLoading(false);
-    alert("Profile updated successfully!");
+    try {
+      await updateProfile({
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+        phone: profileData.phone,
+        company: profileData.company,
+        bio: profileData.bio,
+      });
+      setProfileMessage('Profile updated successfully!');
+    } catch (error: any) {
+      console.error(error);
+      setProfileMessage(error?.message || 'Could not update profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!profileData.email) {
+      setProfileMessage('Email address missing.');
+      return;
+    }
+
+    setResendLoading(true);
+    try {
+      await api.resendVerificationEmail(profileData.email);
+      setProfileMessage('Verification email sent again. Check your inbox.');
+    } catch (error: any) {
+      console.error(error);
+      setProfileMessage(error?.message || 'Could not resend verification email.');
+    } finally {
+      setResendLoading(false);
+    }
   };
 
   const handleChangePassword = async (e: React.FormEvent) => {
@@ -52,17 +110,45 @@ export default function UserProfile() {
     alert("Password updated successfully!");
   };
 
+  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    setLoading(true);
+    try {
+      await uploadProfileAvatar(file);
+      alert("Profile picture updated successfully!");
+    } catch (error: any) {
+      console.error(error);
+      alert(error?.message || "Could not upload profile picture");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleEnable2FA = () => {
     setTwoFactorEnabled(!twoFactorEnabled);
     alert(twoFactorEnabled ? "2FA disabled" : "2FA enabled successfully!");
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-8 text-[#071022]">
       {/* Header */}
       <div>
         <h1 className="text-4xl font-bold text-[#071022] mb-2">Profile Settings</h1>
-        <p className="text-lg text-[#9CA3AF]">Manage your account settings and preferences</p>
+        <p className="text-lg text-[#4B5563]">Manage your account settings and preferences</p>
+        {profileMessage && (
+          <div className="mt-4 p-3 rounded-lg bg-[#EEF2FF] text-[#1D4ED8] font-medium">
+            {profileMessage}
+          </div>
+        )}
       </div>
 
       {/* Profile Picture and Basic Info */}
@@ -70,21 +156,55 @@ export default function UserProfile() {
         <CardContent className="p-6">
           <div className="flex items-center gap-6">
             <div className="relative">
-              <div className="w-24 h-24 bg-gradient-to-br from-[#0052FF] to-[#00D4FF] rounded-full flex items-center justify-center text-white text-3xl font-bold">
-                {profileData.firstName.charAt(0)}{profileData.lastName.charAt(0)}
-              </div>
-              <Button
-                size="sm"
-                className="absolute bottom-0 right-0 w-8 h-8 rounded-full p-0 bg-[#0052FF] hover:bg-[#0042CC]"
-              >
-                +
-              </Button>
+              {avatarPreview ? (
+                <img
+                  src={avatarPreview}
+                  alt="Profile"
+                  className="w-24 h-24 object-cover rounded-full border-2 border-white shadow-sm"
+                />
+              ) : (
+                <div className="w-24 h-24 bg-gradient-to-br from-[#0052FF] to-[#00D4FF] rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                  {profileData.firstName?.charAt(0) || "U"}{profileData.lastName?.charAt(0) || ""}
+                </div>
+              )}
+
+              <label htmlFor="profile-image" className="absolute bottom-0 right-0 bg-white p-1 rounded-full border border-[#D1D5DB] cursor-pointer hover:bg-[#F3F4F6]">
+                <svg
+                  className="w-4 h-4 text-[#0052FF]"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path fillRule="evenodd" d="M4 3a1 1 0 011-1h10a1 1 0 011 1v4h-2V4H6v12h8v-3h2v4a1 1 0 01-1 1H5a1 1 0 01-1-1V3z" clipRule="evenodd" />
+                  <path d="M9 7a2 2 0 100 4 2 2 0 000-4z" />
+                </svg>
+                <input id="profile-image" type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+              </label>
             </div>
             <div>
               <h2 className="text-2xl font-bold text-[#071022]">
                 {profileData.firstName} {profileData.lastName}
               </h2>
-              <p className="text-[#9CA3AF]">{profileData.email}</p>
+              <p className="text-[#374151] font-medium">{profileData.email}</p>
+              <div className="mt-2 flex items-center gap-2">
+                <span
+                  className={`inline-block px-3 py-1 text-xs rounded-full ${
+                    emailVerified ? 'bg-[#10B981] text-white' : 'bg-[#F59E0B] text-white'
+                  }`}
+                >
+                  {emailVerified ? 'Email Verified' : 'Email Not Verified'}
+                </span>
+                {!emailVerified && (
+                  <button
+                    type="button"
+                    onClick={handleResendVerification}
+                    disabled={resendLoading}
+                    className="ml-2 px-3 py-1 text-xs rounded-lg border border-[#0052FF] text-[#0052FF] hover:bg-[#0052FF] hover:text-white transition-colors"
+                  >
+                    {resendLoading ? 'Sending...' : 'Resend Verification'}
+                  </button>
+                )}
+              </div>
               <span className="inline-block mt-2 px-3 py-1 bg-[#0052FF] text-white text-xs rounded-full">
                 Premium Member
               </span>
@@ -146,18 +266,23 @@ export default function UserProfile() {
 
                 <div>
                   <Label htmlFor="email" className="text-[#374151]">Email</Label>
-                  <div className="flex gap-2 mt-2">
-                    <Input
-                      id="email"
-                      type="email"
-                      value={profileData.email}
-                      onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                      className="h-11 border-[#D1D5DB] rounded-lg"
-                    />
-                    <Button type="button" variant="outline" className="border-[#0052FF] text-[#0052FF]">
-                      Verify
-                    </Button>
-                  </div>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={profileData.email}
+                    readOnly
+                    className="mt-2 h-11 border-[#D1D5DB] rounded-lg bg-[#F3F4F6]"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="company" className="text-[#374151]">Company (Optional)</Label>
+                  <Input
+                    id="company"
+                    value={profileData.company}
+                    onChange={(e) => setProfileData({ ...profileData, company: e.target.value })}
+                    className="mt-2 h-11 border-[#D1D5DB] rounded-lg"
+                  />
                 </div>
 
                 <div>
