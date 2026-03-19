@@ -33,9 +33,14 @@ export default function PasswordReset() {
     setError("");
     
     try {
-      await api.requestPasswordReset(email);
+      const result = await api.requestPasswordReset(email);
+
       // Keep email around so the user can continue the flow via email link
       localStorage.setItem('volthub_password_reset_email', email);
+      if (result?.resetCode) {
+        setResetCode(result.resetCode);
+      }
+
       setStep("verification");
       setResendDisabled(true);
       setTimeout(() => setResendDisabled(false), 60000);

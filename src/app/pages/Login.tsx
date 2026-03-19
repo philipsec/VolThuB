@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -7,6 +7,8 @@ import { Label } from "../components/ui/label";
 import { useAuth } from "../contexts/AuthContext";
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const fromPath = (location.state as any)?.from?.pathname || "/portal/";
   const { signin } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -23,7 +25,7 @@ export default function Login() {
     
     try {
       await signin(formData.email, formData.password);
-      navigate("/portal/");
+      navigate(fromPath);
     } catch (error: any) {
       // Check if verification is required
       if (error.message && error.message.includes('verify your email')) {
@@ -58,7 +60,7 @@ export default function Login() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg" role="alert">
             <p className="text-sm text-red-600">{error}</p>
           </div>
         )}
@@ -105,9 +107,14 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#374151]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#0052FF] focus:ring-offset-2 rounded"
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" aria-hidden="true" />
+                ) : (
+                  <Eye className="w-5 h-5" aria-hidden="true" />
+                )}
               </button>
             </div>
           </div>
@@ -115,11 +122,12 @@ export default function Login() {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full h-11 bg-[#0052FF] hover:bg-[#0042CC] text-white rounded-lg transition-colors"
+            className="w-full h-11 bg-[#0052FF] hover:bg-[#0042CC] text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0052FF]"
+            aria-busy={loading}
           >
             {loading ? (
               <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" aria-hidden="true" />
                 Signing in...
               </>
             ) : (

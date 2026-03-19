@@ -1,10 +1,12 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router";
-import { LayoutDashboard, Building2, Users, Calendar, LogOut, Shield } from "lucide-react";
+import { LayoutDashboard, Building2, Users, Calendar, LogOut, Shield, Sun, Moon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTheme } from "../contexts/ThemeContext";
 
 export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isDark, toggleTheme } = useTheme();
   const [adminProfile, setAdminProfile] = useState<any>({ name: 'Admin', firstName: 'Admin', lastName: 'User' });
 
   useEffect(() => {

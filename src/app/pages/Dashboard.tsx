@@ -9,7 +9,7 @@ import { useDataInit } from "../hooks/useDataInit";
 import { Logo } from "../components/Logo";
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const { initialized } = useDataInit();
   const [bookings, setBookings] = useState<any[]>([]);
   const [workspaces, setWorkspaces] = useState<any[]>([]);
@@ -20,7 +20,7 @@ export default function Dashboard() {
       if (!initialized || !user) return;
 
       try {
-        const token = localStorage.getItem('volthub_access_token');
+        const token = session?.access_token;
         if (token) {
           const [bookingsData, workspacesData] = await Promise.all([
             api.getBookings(token),
@@ -155,7 +155,7 @@ export default function Dashboard() {
                   <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6">
                     <img
                       src={booking.workspaceImage}
-                      alt={booking.workspaceName}
+                      alt={`${booking.workspaceName} at ${booking.location}`}
                       className="w-full md:w-24 h-48 md:h-24 rounded-lg object-cover shrink-0"
                     />
                     <div className="flex-1 min-w-0">
@@ -216,10 +216,10 @@ export default function Dashboard() {
               <div className="relative h-40 md:h-48 overflow-hidden">
                 <img
                   src={workspace.image}
-                  alt={workspace.name}
+                  alt={`${workspace.name} - ${workspace.type || 'Workspace'}`}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <span className="absolute top-3 md:top-4 right-3 md:right-4 px-2 md:px-3 py-1 bg-[#10B981] text-white text-xs rounded-full">
+                <span className="absolute top-3 md:top-4 right-3 md:right-4 px-2 md:px-3 py-1 bg-[#10B981] text-white text-xs rounded-full" aria-label="Available">
                   Available
                 </span>
               </div>

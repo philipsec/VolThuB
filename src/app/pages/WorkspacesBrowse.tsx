@@ -17,14 +17,13 @@ interface Workspace {
   location: string;
   description: string;
   capacity: number;
-  pricePerHour: number;
-  rating: number;
-  reviewCount: number;
+  price: number;
   image: string;
-  images: string[];
-  amenities: string[];
-  type: "open" | "private" | "meeting-room";
+  amenities: string;
+  type: string;
   availability: "available" | "limited" | "unavailable";
+  createdBy?: string;
+  createdAt?: string;
 }
 
 export default function WorkspacesBrowse() {
@@ -81,11 +80,12 @@ export default function WorkspacesBrowse() {
         workspace.location.toLowerCase().includes(searchQuery.toLowerCase());
 
       // Price filter
-      const matchesPrice = workspace.pricePerHour >= priceRange[0] && workspace.pricePerHour <= priceRange[1];
+      const matchesPrice = workspace.price >= priceRange[0] && workspace.price <= priceRange[1];
 
       // Amenities filter
+      const amenitiesArray = workspace.amenities ? workspace.amenities.split(', ') : [];
       const matchesAmenities = selectedAmenities.length === 0 ||
-        selectedAmenities.every(amenity => workspace.amenities.includes(amenity));
+        selectedAmenities.every(amenity => amenitiesArray.some(a => a.includes(amenity)));
 
       // Capacity filter
       const matchesCapacity = selectedCapacity.length === 0 || selectedCapacity.some(cap => {
@@ -102,9 +102,9 @@ export default function WorkspacesBrowse() {
   const sortWorkspaces = (workspaces: Workspace[]) => {
     const sorted = [...workspaces];
     if (sortBy === "price-low") {
-      sorted.sort((a, b) => a.pricePerHour - b.pricePerHour);
+      sorted.sort((a, b) => a.price - b.price);
     } else if (sortBy === "price-high") {
-      sorted.sort((a, b) => b.pricePerHour - a.pricePerHour);
+      sorted.sort((a, b) => b.price - a.price);
     } else if (sortBy === "rating") {
       sorted.sort((a, b) => b.rating - a.rating);
     }
@@ -295,21 +295,21 @@ export default function WorkspacesBrowse() {
                   </div>
 
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {workspace.amenities.slice(0, 3).map((amenity) => (
+                    {workspace.amenities.split(', ').slice(0, 3).map((amenity) => (
                       <span key={amenity} className="text-xs text-[#9CA3AF]">
                         • {amenity}
                       </span>
                     ))}
-                    {workspace.amenities.length > 3 && (
+                    {workspace.amenities.split(', ').length > 3 && (
                       <span className="text-xs text-[#9CA3AF]">
-                        +{workspace.amenities.length - 3} more
+                        +{workspace.amenities.split(', ').length - 3} more
                       </span>
                     )}
                   </div>
 
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t border-[#D1D5DB] gap-3">
                     <div>
-                      <span className="text-2xl font-bold text-[#0052FF]">${workspace.pricePerHour}</span>
+                      <span className="text-2xl font-bold text-[#0052FF]">${workspace.price}</span>
                       <span className="text-sm text-[#9CA3AF]">/hour</span>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-2">

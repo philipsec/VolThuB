@@ -40,7 +40,7 @@ export default function AdminWorkspaces() {
   const loadWorkspaces = async () => {
     try {
       const data = await api.getWorkspaces();
-      setWorkspaces(Array.isArray(data) ? data : []);
+      setWorkspaces(Array.isArray(data) ? data : data.workspaces || []);
     } catch (error: any) {
       toast.error(error.message || 'Failed to load workspaces');
     } finally {

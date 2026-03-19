@@ -213,6 +213,169 @@ export const api = {
     }
   },
 
+  // Admin
+  async adminLogin(email: string, password: string) {
+    try {
+      const response = await fetch(`${API_URL}/admin/login`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to login as admin');
+      }
+      return data;
+    } catch (error) {
+      throw handleFetchError(error, 'Admin login');
+    }
+  },
+
+  async createAdmin(email: string, password: string, firstName: string, lastName: string, secretKey: string) {
+    try {
+      const response = await fetch(`${API_URL}/admin/create-admin`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ email, password, firstName, lastName, secretKey }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create admin');
+      }
+      return data;
+    } catch (error) {
+      throw handleFetchError(error, 'Create admin');
+    }
+  },
+
+  async getAdminStats(token: string) {
+    try {
+      const response = await fetch(`${API_URL}/admin/stats`, {
+        headers: getAuthHeaders(token),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch admin stats');
+      }
+      return data;
+    } catch (error) {
+      throw handleFetchError(error, 'Admin stats');
+    }
+  },
+
+  async getAllUsers(token: string) {
+    try {
+      const response = await fetch(`${API_URL}/admin/users`, {
+        headers: getAuthHeaders(token),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch users');
+      }
+      return data;
+    } catch (error) {
+      throw handleFetchError(error, 'Get users');
+    }
+  },
+
+  async deleteUser(token: string, userId: string) {
+    try {
+      const response = await fetch(`${API_URL}/admin/users/${userId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(token),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete user');
+      }
+      return data;
+    } catch (error) {
+      throw handleFetchError(error, 'Delete user');
+    }
+  },
+
+  async getAllBookings(token: string) {
+    try {
+      const response = await fetch(`${API_URL}/admin/bookings`, {
+        headers: getAuthHeaders(token),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch bookings');
+      }
+      return data;
+    } catch (error) {
+      throw handleFetchError(error, 'Get bookings');
+    }
+  },
+
+  async updateBookingStatus(token: string, bookingId: string, status: string) {
+    try {
+      const response = await fetch(`${API_URL}/admin/bookings/${bookingId}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(token),
+        body: JSON.stringify({ status }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update booking status');
+      }
+      return data;
+    } catch (error) {
+      throw handleFetchError(error, 'Update booking status');
+    }
+  },
+
+  async createWorkspace(token: string, workspace: any) {
+    try {
+      const response = await fetch(`${API_URL}/admin/workspaces`, {
+        method: 'POST',
+        headers: getAuthHeaders(token),
+        body: JSON.stringify(workspace),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create workspace');
+      }
+      return data;
+    } catch (error) {
+      throw handleFetchError(error, 'Create workspace');
+    }
+  },
+
+  async updateWorkspace(token: string, workspaceId: string, workspace: any) {
+    try {
+      const response = await fetch(`${API_URL}/admin/workspaces/${workspaceId}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(token),
+        body: JSON.stringify(workspace),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update workspace');
+      }
+      return data;
+    } catch (error) {
+      throw handleFetchError(error, 'Update workspace');
+    }
+  },
+
+  async deleteWorkspace(token: string, workspaceId: string) {
+    try {
+      const response = await fetch(`${API_URL}/admin/workspaces/${workspaceId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(token),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete workspace');
+      }
+      return data;
+    } catch (error) {
+      throw handleFetchError(error, 'Delete workspace');
+    }
+  },
+
   async requestPasswordReset(email: string) {
     try {
       const response = await fetch(`${API_URL}/auth/reset-password`, {

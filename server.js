@@ -95,15 +95,12 @@ const sendEmail = async (toEmail, subject, htmlContent, textContent) => {
         (EMAIL_PROVIDER === 'ses' && !hasAwsCredentials));
 
     if (EMAIL_PROVIDER === 'smtp') {
-      if (!hasSmtpConfig && !enableEthereal) {
-        console.log(`\n📧 [DEV MODE - SMTP missing config] Email to: ${toEmail}`);
-        console.log(`📧 Subject: ${subject}`);
-        console.log(`📧 Content: ${textContent.substring(0, 100)}...\n`);
-        return { MessageId: 'dev-mode' };
+      if (!hasSmtpConfig) {
+        console.error('SMTP is configured as email provider but SMTP credentials are missing or invalid.');
+        throw new Error('SMTP configuration missing. Set SMTP_HOST, SMTP_USER, SMTP_PASS.');
       }
 
-      const transporter =
-        hasSmtpConfig ? smtpTransporter : await createEtherealTransporter();
+      const transporter = smtpTransporter;
 
       try {
         const info = await transporter.sendMail({
@@ -144,6 +141,31 @@ const sendEmail = async (toEmail, subject, htmlContent, textContent) => {
 
         throw error;
       }
+    }
+
+    if (EMAIL_PROVIDER === 'ses') {
+      if (!hasAwsCredentials) {
+        console.error('SES is configured as email provider but AWS credentials are missing or invalid.');
+        throw new Error('SES configuration missing. Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.');
+      }
+
+      const command = new SendEmailCommand({
+        Source: SENDER_EMAIL,
+        Destination: {
+          ToAddresses: [toEmail],
+        },
+        Message: {
+          Subject: { Data: subject, Charset: 'UTF-8' },
+          Body: {
+            Html: { Data: htmlContent, Charset: 'UTF-8' },
+            Text: { Data: textContent, Charset: 'UTF-8' },
+          },
+        },
+      });
+
+      const response = await sesClient.send(command);
+      console.log(`✅ Email sent to ${toEmail} - Message ID: ${response.MessageId}`);
+      return response;
     }
 
     if (!hasAwsCredentials && enableEthereal) {
@@ -489,9 +511,10 @@ app.post('/api/auth/signup', async (req, res) => {
     const { email, password, firstName, lastName } = req.body;
 
     const normalizedEmail = email?.toString().trim().toLowerCase();
+    const trimmedPassword = password?.toString().trim();
 
     // Basic validation
-    if (!normalizedEmail || !password || !firstName || !lastName) {
+    if (!normalizedEmail || !trimmedPassword || !firstName || !lastName) {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
@@ -503,7 +526,7 @@ app.post('/api/auth/signup', async (req, res) => {
     const newUser = {
       id: generateId(),
       email: normalizedEmail,
-      password, // In production, hash this!
+      password: trimmedPassword, // In production, hash this!
       firstName,
       lastName,
       name: `${firstName} ${lastName}`,
@@ -568,9 +591,11 @@ app.post('/api/auth/signin', (req, res) => {
     const normalizedEmail = email?.toString().trim().toLowerCase();
     const trimmedPassword = password?.toString().trim();
 
-    const user = users.find(
-      u => u.email === normalizedEmail && u.password === trimmedPassword
-    );
+    const user = users.find(u => u.email === normalizedEmail);
+
+    if (!user || user.password !== trimmedPassword) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
@@ -714,6 +739,34 @@ app.get('/api/auth/session', (req, res) => {
   }
 });
 
+// Test email sending endpoint (manual test)
+app.post('/api/email/test', async (req, res) => {
+  try {
+    const { to } = req.body;
+    if (!to) {
+      return res.status(400).json({ error: 'Recipient email is required' });
+    }
+
+    const resetCode = generateVerificationToken();
+    const { html: emailHtml, text: emailText } = getPasswordResetEmailTemplate(resetCode);
+
+    await sendEmail(
+      to,
+      'VoltHub email test - reset code included',
+      emailHtml,
+      emailText
+    );
+
+    return res.json({
+      message: 'Test email sent',
+      resetCode,
+    });
+  } catch (error) {
+    console.error('Email test failed:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 // Password reset request
 app.post('/api/auth/reset-password', async (req, res) => {
   try {
@@ -749,7 +802,13 @@ app.post('/api/auth/reset-password', async (req, res) => {
       emailText
     );
 
-    res.json({ message: 'Password reset email sent' });
+    // In development mode (or when email provider is not fully configured), return code in response for testing
+    const responsePayload = {
+      message: 'Password reset email sent',
+      resetCode: resetToken,
+    };
+
+    res.json(responsePayload);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -855,7 +914,7 @@ app.get('/api/workspaces', (req, res) => {
   try {
     const { type, availability, search, minPrice, maxPrice } = req.query;
 
-    let filtered = [...workspaces];
+    let filtered = workspaces.filter(w => w.createdBy);
 
     if (type && type !== 'all') {
       filtered = filtered.filter(w => w.type === type);
@@ -936,6 +995,7 @@ app.post('/api/bookings', (req, res) => {
     };
 
     bookings.push(newBooking);
+    persistDataToDisk();
     res.json(newBooking);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -1116,10 +1176,12 @@ app.post('/api/profile/avatar', upload.single('avatar'), (req, res) => {
 app.post('/api/admin/login', (req, res) => {
   try {
     const { email, password } = req.body;
+    const normalizedEmail = email?.toString().trim().toLowerCase();
+    const trimmedPassword = password?.toString().trim();
 
-    const admin = admins.find(a => a.email === email && a.password === password);
+    const admin = admins.find(a => a.email.toLowerCase() === normalizedEmail);
 
-    if (!admin) {
+    if (!admin || admin.password !== trimmedPassword) {
       return res.status(401).json({ error: 'Invalid admin credentials' });
     }
 
@@ -1257,10 +1319,12 @@ app.post('/api/admin/workspaces', (req, res) => {
       image,
       amenities,
       availability: availability || 'available',
+      createdBy: decoded.userId,
       createdAt: new Date().toISOString(),
     };
 
     workspaces.push(newWorkspace);
+    persistDataToDisk();
     res.json(newWorkspace);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -1288,6 +1352,7 @@ app.put('/api/admin/workspaces/:id', (req, res) => {
       ...req.body,
     };
 
+    persistDataToDisk();
     res.json(workspaces[workspaceIndex]);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -1311,6 +1376,7 @@ app.delete('/api/admin/workspaces/:id', (req, res) => {
     }
 
     const deleted = workspaces.splice(workspaceIndex, 1);
+    persistDataToDisk();
     res.json(deleted[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });

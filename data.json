@@ -19,51 +19,106 @@
       "name": "Philip Onuoha",
       "emailVerified": true,
       "createdAt": "2026-03-13T19:48:06.724Z"
+    },
+    {
+      "id": "mpajub9m8",
+      "email": "onuohaphili@gmail.com",
+      "password": "123User$",
+      "firstName": "Philip",
+      "lastName": "Onuoha",
+      "name": "Philip Onuoha",
+      "phone": "",
+      "company": "",
+      "bio": "",
+      "profilePicUrl": "",
+      "emailVerified": true,
+      "createdAt": "2026-03-16T10:49:56.822Z"
     }
   ],
   "workspaces": [
     {
-      "id": "1",
-      "name": "Tech Hub Downtown",
-      "location": "San Francisco, CA",
-      "description": "Modern coworking space with high-speed internet and meeting rooms",
+      "id": "ws-001",
+      "name": "Silicon Valley Tech Hub",
+      "location": "San Jose, CA",
+      "description": "State-of-the-art tech workspace with high-speed fiber and dedicated server rooms",
       "type": "coworking",
-      "capacity": 50,
+      "capacity": 100,
+      "price": 45,
+      "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=500",
+      "amenities": "WiFi, Meeting Rooms, Parking, Coffee Bar, Phone Booths",
       "availability": "available",
+      "createdBy": "admin-001",
+      "createdAt": "2026-03-16T11:30:00.000Z"
+    },
+    {
+      "id": "ws-002",
+      "name": "Creative Design Studio",
+      "location": "Brooklyn, NY",
+      "description": "Modern design studio with dual monitors and creative software",
+      "type": "studio",
+      "capacity": 25,
+      "price": 55,
+      "image": "https://images.unsplash.com/photo-1559027615-cd61628902d4?w=500",
+      "amenities": "Desks, Design Software, Monitors, Kitchen, Whiteboard Walls",
+      "availability": "available",
+      "createdBy": "admin-001",
+      "createdAt": "2026-03-16T11:30:10.000Z"
+    },
+    {
+      "id": "ws-003",
+      "name": "StartUp Accelerator",
+      "location": "Austin, TX",
+      "description": "Incubator space for early-stage startups with mentorship",
+      "type": "incubator",
+      "capacity": 50,
       "price": 25,
       "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=500",
-      "amenities": "WiFi, Coffee, Meeting Rooms, Parking",
-      "createdAt": "2026-03-13T19:28:15.826Z"
+      "amenities": "Mentor Access, Networking Events, Demo Day, Lounge",
+      "availability": "available",
+      "createdBy": "admin-001",
+      "createdAt": "2026-03-16T11:30:20.000Z"
     },
     {
-      "id": "2",
-      "name": "Creative Studio",
-      "location": "New York, NY",
-      "description": "Design-focused workspace with creative tools",
-      "type": "studio",
+      "id": "ws-004",
+      "name": "Downtown Business Center",
+      "location": "Chicago, IL",
+      "description": "Corporate workspace with premium amenities and professional environment",
+      "type": "coworking",
+      "capacity": 150,
+      "price": 60,
+      "image": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=500",
+      "amenities": "WiFi, Conference Rooms, Parking, Cafe, 24/7 Access, Receptionist",
+      "availability": "available",
+      "createdBy": "admin-001",
+      "createdAt": "2026-03-16T11:30:30.000Z"
+    },
+    {
+      "id": "ws-005",
+      "name": "Beach Side Work Hub",
+      "location": "Santa Monica, CA",
+      "description": "Relaxed workspace with ocean views and flexible schedule",
+      "type": "coworking",
       "capacity": 30,
-      "availability": "available",
       "price": 35,
-      "image": "https://images.unsplash.com/photo-1559027615-cd61628902d4?w=500",
-      "amenities": "Desks, Design Software, Monitors, Kitchen",
-      "createdAt": "2026-03-13T19:28:15.828Z"
-    },
-    {
-      "id": "3",
-      "name": "Startup Incubator",
-      "location": "Austin, TX",
-      "description": "Support for early-stage startups",
-      "type": "incubator",
-      "capacity": 20,
+      "image": "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=500",
+      "amenities": "WiFi, Ocean View, Outdoor Seating, Coffee, Flexible Hours",
       "availability": "available",
-      "price": 15,
-      "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=500",
-      "amenities": "Mentorship, Networking, Demo Day",
-      "createdAt": "2026-03-13T19:28:15.828Z"
+      "createdBy": "admin-001",
+      "createdAt": "2026-03-16T11:30:40.000Z"
     }
   ],
   "bookings": [],
-  "admins": [],
+  "admins": [
+    {
+      "id": "admin-001",
+      "email": "admin@volthub.com",
+      "password": "Admin@123456",
+      "firstName": "Admin",
+      "lastName": "User",
+      "name": "Admin User",
+      "createdAt": "2026-03-16T11:52:00.000Z"
+    }
+  ],
   "verificationTokens": [],
   "passwordResetTokens": []
 }

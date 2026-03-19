@@ -52,23 +52,27 @@ export default function WorkspaceDetails() {
         <div className="md:col-span-3">
           <img
             src={workspace.images[selectedImage]}
-            alt={workspace.name}
+            alt={`${workspace.name} - Image ${selectedImage + 1} of ${workspace.images.length}`}
             className="w-full h-64 md:h-[500px] object-cover rounded-xl"
+            role="img"
           />
         </div>
-        <div className="hidden md:flex md:flex-col gap-4">
+        <div className="hidden md:flex md:flex-col gap-4" role="region" aria-label="Image gallery thumbnails">
           {workspace.images.map((image, index) => (
             <button
               key={index}
               onClick={() => setSelectedImage(index)}
-              className={`relative h-[120px] rounded-lg overflow-hidden ${
+              aria-label={`View image ${index + 1} of ${workspace.images.length}`}
+              aria-current={selectedImage === index ? "page" : undefined}
+              className={`relative h-[120px] rounded-lg overflow-hidden focus:outline-none focus:ring-2 focus:ring-[#0052FF] focus:ring-offset-2 ${
                 selectedImage === index ? "ring-2 ring-[#0052FF]" : ""
               }`}
             >
               <img
                 src={image}
-                alt={`${workspace.name} ${index + 1}`}
+                alt={`Thumbnail ${index + 1}`}
                 className="w-full h-full object-cover hover:scale-105 transition-transform"
+                aria-hidden="true"
               />
             </button>
           ))}
@@ -76,20 +80,23 @@ export default function WorkspaceDetails() {
       </div>
 
       {/* Mobile Image Thumbnails */}
-      <div className="md:hidden">
+      <div className="md:hidden" role="region" aria-label="Image gallery thumbnails">
         <div className="flex gap-2 overflow-x-auto pb-2">
           {workspace.images.map((image, index) => (
             <button
               key={index}
               onClick={() => setSelectedImage(index)}
-              className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden ${
+              aria-label={`View image ${index + 1} of ${workspace.images.length}`}
+              aria-current={selectedImage === index ? "page" : undefined}
+              className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden focus:outline-none focus:ring-2 focus:ring-[#0052FF] ${
                 selectedImage === index ? "ring-2 ring-[#0052FF]" : ""
               }`}
             >
               <img
                 src={image}
-                alt={`${workspace.name} ${index + 1}`}
+                alt={`Thumbnail ${index + 1}`}
                 className="w-full h-full object-cover"
+                aria-hidden="true"
               />
             </button>
           ))}

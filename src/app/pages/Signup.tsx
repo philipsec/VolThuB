@@ -107,7 +107,7 @@ export default function Signup() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg" role="alert">
             <p className="text-sm text-red-600">{error}</p>
           </div>
         )}
@@ -180,18 +180,24 @@ export default function Signup() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#374151]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#0052FF] focus:ring-offset-2 rounded"
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" aria-hidden="true" />
+                ) : (
+                  <Eye className="w-5 h-5" aria-hidden="true" />
+                )}
               </button>
             </div>
             {formData.password && (
-              <div className="mt-2">
+              <div className="mt-2" role="status" aria-live="polite">
                 <div className="flex gap-1">
                   <div className="flex-1 h-1 bg-[#F3F4F6] rounded-full overflow-hidden">
                     <div
                       className={`h-full transition-all ${getStrengthColor()}`}
                       style={{ width: `${passwordStrength}%` }}
+                      aria-hidden="true"
                     />
                   </div>
                 </div>
@@ -218,9 +224,14 @@ export default function Signup() {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#374151]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#0052FF] focus:ring-offset-2 rounded"
+                aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
               >
-                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showConfirmPassword ? (
+                  <EyeOff className="w-5 h-5" aria-hidden="true" />
+                ) : (
+                  <Eye className="w-5 h-5" aria-hidden="true" />
+                )}
               </button>
             </div>
           </div>
@@ -242,11 +253,12 @@ export default function Signup() {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full h-11 bg-[#0052FF] hover:bg-[#0042CC] text-white rounded-lg transition-colors"
+            className="w-full h-11 bg-[#0052FF] hover:bg-[#0042CC] text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0052FF]"
+            aria-busy={loading}
           >
             {loading ? (
               <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" aria-hidden="true" />
                 Creating Account...
               </>
             ) : (

@@ -2,6 +2,7 @@ import { Outlet, Link, useLocation, useNavigate } from "react-router";
 import { Home, Search, Calendar, User, Settings, LogOut, Menu, Sun, Moon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { Button } from "../components/ui/button";
 import Footer from "../components/Footer";
 import {
@@ -16,28 +17,11 @@ export default function PortalLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signout, loading } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-
-  useEffect(() => {
-    const savedTheme = window.localStorage.getItem('volthub_theme');
-    const isDark = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    setDarkMode(isDark);
-  }, []);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (darkMode) {
-      root.classList.add('dark');
-      window.localStorage.setItem('volthub_theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      window.localStorage.setItem('volthub_theme', 'light');
-    }
-  }, [darkMode]);
 
   const toggleDarkMode = () => {
-    setDarkMode((prev) => !prev);
+    toggleTheme();
   };
 
   // Redirect to landing if not authenticated
@@ -55,8 +39,10 @@ export default function PortalLayout() {
   ];
 
   const handleLogout = async () => {
-    await signout();
-    navigate("/");
+    const stillHasSession = await signout();
+    if (!stillHasSession) {
+      navigate("/");
+    }
   };
 
   // Show nothing while checking auth
@@ -82,11 +68,19 @@ export default function PortalLayout() {
 
   return (
     <div className="min-h-screen bg-[#F3F4F6]">
+      {/* Skip to main content link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-[#0052FF] focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
+      >
+        Skip to main content
+      </a>
+
       {/* Top Navigation Bar */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#071022] text-white shadow-lg">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[#071022] text-white shadow-lg" role="banner">
         <div className="flex items-center justify-between px-4 sm:px-6 py-4">
           {/* Logo */}
-          <Link to="/portal/" className="flex items-center gap-2">
+          <Link to="/portal/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#0052FF] focus:ring-offset-2 focus:ring-offset-[#071022] rounded-lg" aria-label="VoltHub home">
             <div className="w-10 h-10 bg-[#0052FF] rounded-lg flex items-center justify-center">
               <span className="text-xl font-bold">V</span>
             </div>
@@ -98,16 +92,21 @@ export default function PortalLayout() {
             {/* Mobile Menu Button */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden text-[#9CA3AF] hover:bg-[#374151] hover:text-white">
-                  <Menu className="w-5 h-5" />
-                  <span className="sr-only">Open menu</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden text-[#9CA3AF] hover:bg-[#374151] hover:text-white focus:ring-2 focus:ring-[#0052FF]"
+                  aria-label="Open navigation menu"
+                >
+                  <Menu className="w-5 h-5" aria-hidden="true" />
+                  <span className="sr-only">Open navigation menu</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-80 bg-[#071022] border-[#374151]">
                 <SheetHeader>
-                  <SheetTitle className="text-white text-left">Menu</SheetTitle>
+                  <SheetTitle className="text-white text-left">Navigation Menu</SheetTitle>
                 </SheetHeader>
-                <nav className="flex flex-col gap-4 mt-6">
+                <nav className="flex flex-col gap-4 mt-6" aria-label="Mobile navigation">
                   {menuItems.map((item) => {
                     const Icon = item.icon;
                     const isActive = location.pathname === item.path;
@@ -116,13 +115,14 @@ export default function PortalLayout() {
                         key={item.path}
                         to={item.path}
                         onClick={() => setMobileMenuOpen(false)}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                        aria-current={isActive ? "page" : undefined}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#0052FF] ${
                           isActive
                             ? "bg-[#0052FF] text-white"
                             : "text-[#9CA3AF] hover:bg-[#374151] hover:text-white"
                         }`}
                       >
-                        <Icon className="w-5 h-5" />
+                        <Icon className="w-5 h-5" aria-hidden="true" />
                         <span>{item.label}</span>
                       </Link>
                     );
@@ -132,7 +132,7 @@ export default function PortalLayout() {
             </Sheet>
 
             {/* Navigation Menu */}
-            <nav className="hidden md:flex items-center gap-4">
+            <nav className="hidden md:flex items-center gap-4" aria-label="Main navigation">
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -140,13 +140,14 @@ export default function PortalLayout() {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                    aria-current={isActive ? "page" : undefined}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#0052FF] ${
                       isActive
                         ? "bg-[#0052FF] text-white"
                         : "text-[#9CA3AF] hover:bg-[#374151] hover:text-white"
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className="w-4 h-4" aria-hidden="true" />
                     <span className="text-sm">{item.label}</span>
                   </Link>
                 );
@@ -157,10 +158,14 @@ export default function PortalLayout() {
             <div className="flex items-center gap-4">
               <button
                 onClick={toggleDarkMode}
-                className="p-2 rounded-lg text-[#9CA3AF] hover:bg-[#374151] hover:text-white transition-colors"
-                aria-label="Toggle dark mode"
+                className="p-2 rounded-lg text-[#9CA3AF] hover:bg-[#374151] hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
+                aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
               >
-                {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {isDark ? (
+                  <Sun className="w-4 h-4" aria-hidden="true" />
+                ) : (
+                  <Moon className="w-4 h-4" aria-hidden="true" />
+                )}
               </button>
 
               {/* User Avatar and Info */}
@@ -168,7 +173,7 @@ export default function PortalLayout() {
                 {user.profilePicUrl ? (
                   <img
                     src={user.profilePicUrl}
-                    alt={firstName}
+                    alt={`${firstName}'s profile picture`}
                     className="w-8 h-8 rounded-full object-cover"
                   />
                 ) : (
@@ -181,13 +186,14 @@ export default function PortalLayout() {
                   <div className="text-xs text-[#9CA3AF]">Premium Member</div>
                 </div>
               </div>
-
+              {/* empty placeholder in portal header for simplicity, no account manager UI here */}
               {/* Logout Button */}
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-3 py-2 text-[#9CA3AF] hover:bg-[#374151] hover:text-white transition-colors rounded-lg"
+                className="flex items-center gap-2 px-3 py-2 text-[#9CA3AF] hover:bg-[#374151] hover:text-white transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
+                aria-label="Logout"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-4 h-4" aria-hidden="true" />
                 <span className="hidden sm:inline text-sm">Logout</span>
               </button>
             </div>
@@ -196,7 +202,7 @@ export default function PortalLayout() {
       </header>
 
       {/* Main Content */}
-      <main className="pt-20 px-4 sm:px-6 pb-8">
+      <main className="pt-20 px-4 sm:px-6 pb-8" id="main-content" role="main">
         <Outlet />
       </main>
 

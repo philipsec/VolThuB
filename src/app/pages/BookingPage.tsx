@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router";
 import { ArrowLeft, Calendar as CalendarIcon, Clock, MapPin, Loader2 } from "lucide-react";
 import { Button } from "../components/ui/button";
@@ -10,14 +10,24 @@ import { Checkbox } from "../components/ui/checkbox";
 import { Calendar } from "../components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { workspaces } from "../data/workspaces";
 import { format } from "date-fns";
+import { api } from "../lib/api";
+import { useAuth } from "../contexts/AuthContext";
+
+interface Workspace {
+  id: string;
+  name: string;
+  location: string;
+  price: number;
+  image: string;
+}
 
 export default function BookingPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const workspace = workspaces.find(w => w.id === id);
+  const { session } = useAuth();
   
+  const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [date, setDate] = useState<Date>();
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
@@ -25,8 +35,34 @@ export default function BookingPage() {
   const [promoCode, setPromoCode] = useState("");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingWorkspace, setLoadingWorkspace] = useState(true);
+  const [error, setError] = useState("");
 
-  if (!workspace) {
+  useEffect(() => {
+    const loadWorkspace = async () => {
+      if (!id) return;
+      try {
+        const result = await api.getWorkspace(id);
+        setWorkspace(result as Workspace);
+      } catch (err: any) {
+        setError(err.message || "Workspace not found");
+      } finally {
+        setLoadingWorkspace(false);
+      }
+    };
+    loadWorkspace();
+  }, [id]);
+
+  if (loadingWorkspace) {
+    return (
+      <div className="max-w-7xl mx-auto text-center py-16">
+        <Loader2 className="w-8 h-8 animate-spin mx-auto text-[#0052FF] mb-4" />
+        <p className="text-[#9CA3AF]">Loading workspace...</p>
+      </div>
+    );
+  }
+
+  if (!workspace || error) {
     return (
       <div className="max-w-7xl mx-auto text-center py-16">
         <h1 className="text-3xl font-bold text-[#071022] mb-4">Workspace not found</h1>
@@ -47,7 +83,7 @@ export default function BookingPage() {
   };
 
   const duration = calculateDuration();
-  const subtotal = duration * workspace.pricePerHour;
+  const subtotal = duration * workspace.price;
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
@@ -58,15 +94,49 @@ export default function BookingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!agreeToTerms) {
       alert("Please agree to the cancellation policy");
       return;
     }
+
+    if (!session?.access_token) {
+      alert("Please sign in to complete your booking");
+      navigate("/auth/login");
+      return;
+    }
+
+    if (!date) {
+      alert("Please select a date");
+      return;
+    }
+
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setLoading(false);
-    const bookingId = `VOL-2026-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-    navigate(`/portal/booking-confirmation/${bookingId}`);
+    setError("");
+
+    try {
+      // Format dates as ISO strings for API
+      const dateString = format(date, "yyyy-MM-dd");
+      const startDateTime = `${dateString}T${startTime}:00`;
+      const endDateTime = `${dateString}T${endTime}:00`;
+
+      const booking = await api.createBooking(
+        session.access_token,
+        workspace.id,
+        startDateTime,
+        endDateTime
+      );
+
+      // Navigate to confirmation with booking details
+      navigate(`/portal/booking-confirmation/${booking.id}`, {
+        state: { booking }
+      });
+    } catch (err: any) {
+      setError(err.message || "Failed to create booking");
+      alert(err.message || "Failed to create booking. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -89,6 +159,12 @@ export default function BookingPage() {
       </div>
 
       <h1 className="text-3xl md:text-4xl font-bold text-[#071022]">Complete Your Booking</h1>
+
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Booking Form */}
@@ -285,7 +361,7 @@ export default function BookingPage() {
               <div className="space-y-3 pt-4 border-t border-[#D1D5DB]">
                 <div className="flex justify-between text-sm">
                   <span className="text-[#9CA3AF]">
-                    ${workspace.pricePerHour}/hr × {duration} hr{duration !== 1 ? "s" : ""}
+                    ${workspace.price}/hr × {duration} hr{duration !== 1 ? "s" : ""}
                   </span>
                   <span className="font-medium text-[#374151]">${subtotal.toFixed(2)}</span>
                 </div>

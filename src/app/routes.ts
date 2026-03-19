@@ -1,3 +1,4 @@
+import React from "react";
 import { createBrowserRouter } from "react-router";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
@@ -15,7 +16,9 @@ import NotFound from "./pages/NotFound";
 import PublicLayout from "./layouts/PublicLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import PortalLayout from "./layouts/PortalLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminSetup from "./pages/admin/AdminSetup";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -52,7 +55,11 @@ export const router = createBrowserRouter([
           { path: "setup", Component: AdminSetup },
           {
             path: "",
-            Component: AdminLayout,
+            element: React.createElement(
+              AdminProtectedRoute,
+              null,
+              React.createElement(AdminLayout, null)
+            ),
             children: [
               { index: true, Component: AdminDashboard },
               { path: "dashboard", Component: AdminDashboard },
@@ -65,7 +72,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "portal",
-        Component: PortalLayout,
+        element: React.createElement(
+          ProtectedRoute,
+          null,
+          React.createElement(PortalLayout, null)
+        ),
         children: [
           { index: true, Component: Dashboard },
           { path: "dashboard", Component: Dashboard },

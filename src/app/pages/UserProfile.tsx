@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { User, Lock, Shield, Bell, Trash2, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { api } from "../lib/api";
+import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -63,7 +64,7 @@ export default function UserProfile() {
     e.preventDefault();
     setLoading(true);
     try {
-      await updateProfile({
+      const updated = await updateProfile({
         firstName: profileData.firstName,
         lastName: profileData.lastName,
         phone: profileData.phone,
@@ -71,9 +72,24 @@ export default function UserProfile() {
         bio: profileData.bio,
       });
       setProfileMessage('Profile updated successfully!');
+      toast.success('Profile updated successfully');
+
+      // Keep local form state in sync with potentially normalized response.
+      if (updated) {
+        setProfileData((prev) => ({
+          ...prev,
+          firstName: updated.firstName || prev.firstName,
+          lastName: updated.lastName || prev.lastName,
+          phone: updated.phone || prev.phone,
+          company: updated.company || prev.company,
+          bio: updated.bio || prev.bio,
+          profilePicUrl: updated.profilePicUrl || prev.profilePicUrl,
+        }));
+      }
     } catch (error: any) {
       console.error(error);
       setProfileMessage(error?.message || 'Could not update profile');
+      toast.error(error?.message || 'Could not update profile');
     } finally {
       setLoading(false);
     }
@@ -100,14 +116,25 @@ export default function UserProfile() {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
+    if (!session?.access_token) {
+      toast.error("Not authenticated");
+      return;
+    }
+
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setLoading(false);
-    setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
-    alert("Password updated successfully!");
+    try {
+      await api.changePassword(session.access_token, passwordData.currentPassword, passwordData.newPassword);
+      toast.success("Password updated successfully!");
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error?.message || "Could not update password");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,11 +150,14 @@ export default function UserProfile() {
 
     setLoading(true);
     try {
-      await uploadProfileAvatar(file);
-      alert("Profile picture updated successfully!");
+      const data = await uploadProfileAvatar(file);
+      if (data?.profilePicUrl) {
+        setProfileData((prev) => ({ ...prev, profilePicUrl: data.profilePicUrl }));
+      }
+      toast.success("Profile picture updated successfully!");
     } catch (error: any) {
       console.error(error);
-      alert(error?.message || "Could not upload profile picture");
+      toast.error(error?.message || "Could not upload profile picture");
     } finally {
       setLoading(false);
     }

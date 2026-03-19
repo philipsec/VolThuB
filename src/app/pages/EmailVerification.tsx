@@ -12,7 +12,7 @@ export default function EmailVerification() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { signin } = useAuth();
+  const { signinWithSession } = useAuth();
 
   const initialEmail =
     location.state?.email ||
@@ -45,21 +45,20 @@ export default function EmailVerification() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     try {
       const response = await api.verifyEmail(verificationCode);
       setSuccess('Email verified successfully!');
-      
-      // Store the session token
-      if (response.session?.access_token) {
-        localStorage.setItem('volthub_access_token', response.session.access_token);
+
+      // Store the account for multi-login support
+      if (response.session?.access_token && response.user) {
+        signinWithSession(response.user, response.session);
       }
 
       // Clear stored verification info
       localStorage.removeItem('volthub_verify_email');
       localStorage.removeItem('volthub_dev_verification_code');
 
-      // Redirect to portal after 2 seconds
       setTimeout(() => {
         navigate('/portal/');
       }, 1500);
