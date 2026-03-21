@@ -43,11 +43,11 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#F3F4F6]">
+    <div className="flex min-h-screen bg-background text-foreground">
       {/* Sidebar */}
-      <aside className="w-[280px] bg-[#071022] text-white flex flex-col fixed h-screen">
+      <aside className="w-[280px] bg-sidebar text-sidebar-foreground flex flex-col fixed h-screen">
         {/* Logo */}
-        <div className="p-6 border-b border-[#374151]">
+        <div className="p-6 border-b border-sidebar-border">
           <Link to="/admin/dashboard" className="flex items-center gap-2">
             <div className="w-10 h-10 bg-[#EF4444] rounded-lg flex items-center justify-center">
               <Shield className="w-6 h-6 text-white" />
@@ -83,8 +83,8 @@ export default function AdminLayout() {
                 to={item.path}
                 className={`flex items-center gap-3 px-6 py-3 transition-colors ${
                   isActive
-                    ? "bg-[#EF4444] text-white"
-                    : "text-[#9CA3AF] hover:bg-[#374151] hover:text-white"
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 }`}
               >
                 <Icon className="w-5 h-5" />
@@ -94,11 +94,20 @@ export default function AdminLayout() {
           })}
         </nav>
 
-        {/* Logout Button */}
-        <div className="p-6 border-t border-[#374151]">
+        {/* Theme toggle + Logout */}
+        <div className="p-6 border-t border-sidebar-border space-y-2">
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-2 w-full px-4 py-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors rounded-lg"
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
+          </button>
+
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-4 py-3 text-[#9CA3AF] hover:bg-[#374151] hover:text-white transition-colors rounded-lg"
+            className="flex items-center gap-3 w-full px-4 py-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors rounded-lg"
           >
             <LogOut className="w-5 h-5" />
             <span>Logout</span>

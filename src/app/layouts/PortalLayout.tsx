@@ -67,7 +67,7 @@ export default function PortalLayout() {
   const firstName = user.user_metadata?.firstName || user.firstName || 'User';
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6]">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Skip to main content link */}
       <a
         href="#main-content"
@@ -77,7 +77,7 @@ export default function PortalLayout() {
       </a>
 
       {/* Top Navigation Bar */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#071022] text-white shadow-lg" role="banner">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-sidebar text-sidebar-foreground shadow-lg" role="banner">
         <div className="flex items-center justify-between px-4 sm:px-6 py-4">
           {/* Logo */}
           <Link to="/portal/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#0052FF] focus:ring-offset-2 focus:ring-offset-[#071022] rounded-lg" aria-label="VoltHub home">

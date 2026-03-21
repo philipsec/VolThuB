@@ -19,7 +19,7 @@ export default function AuthLayout() {
   }, [user, loading, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#071022] to-[#071a2a] flex items-center justify-center p-4 relative">
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4 relative">
       {/* Skip to main content link */}
       <a
         href="#auth-content"
@@ -32,7 +32,7 @@ export default function AuthLayout() {
         <Button
           variant="ghost"
           onClick={toggleTheme}
-          className="text-white focus:outline-none focus:ring-2 focus:ring-[#0052FF] focus:ring-offset-2 focus:ring-offset-[#071022] rounded"
+          className="text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background rounded"
           aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
         >
           {isDark ? "Light" : "Dark"} mode

@@ -49,14 +49,14 @@ export default function Landing() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0052FF] via-[#003399] to-[#0A2E66]">
+    <div className="min-h-screen bg-background text-foreground dark:bg-gradient-to-br dark:from-[#071022] dark:to-[#071a2a]">
       {/* Navigation */}
       <nav className="flex items-center justify-between px-6 py-4" role="navigation" aria-label="Main navigation">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-            <span className="text-xl font-bold text-[#0052FF]" aria-label="VoltHub">V</span>
+          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+            <span className="text-xl font-bold text-primary-foreground" aria-label="VoltHub">V</span>
           </div>
-          <span className="text-2xl font-bold text-white">VoltHub</span>
+          <span className="text-2xl font-bold text-foreground">VoltHub</span>
         </div>
         <div className="flex gap-3">
           <Link to="/auth/login">
@@ -74,10 +74,10 @@ export default function Landing() {
 
       {/* Hero Section */}
       <section className="px-6 py-20 text-center max-w-4xl mx-auto">
-        <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+        <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
           Your Premium Coworking Space Awaits
         </h1>
-        <p className="text-xl text-gray-200 mb-8">
+        <p className="text-xl text-muted-foreground mb-8">
           Find and book the perfect workspace for your team. Access premium facilities with flexible pricing and locations across major cities.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
