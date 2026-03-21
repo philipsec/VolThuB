@@ -156,11 +156,11 @@ export default function Login() {
         </form>
       </div>
 
-      <p className="text-center mt-6 text-sm text-white/80">
+      <p className="text-center mt-6 text-xs text-[#071022] dark:text-[#E5E7EB] font-medium">
         By continuing, you agree to VoltHub's{" "}
-        <a href="#" className="text-[#00D4FF] hover:underline">Terms of Service</a>
+        <a href="/terms" className="text-[#0052FF] dark:text-[#0052FF] hover:underline font-semibold focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background rounded px-0.5">Terms of Service</a>
         {" "}and{" "}
-        <a href="#" className="text-[#00D4FF] hover:underline">Privacy Policy</a>
+        <a href="/privacy" className="text-[#0052FF] dark:text-[#0052FF] hover:underline font-semibold focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background rounded px-0.5">Privacy Policy</a>
       </p>
     </div>
   );
