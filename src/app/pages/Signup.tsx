@@ -243,13 +243,13 @@ export default function Signup() {
               onCheckedChange={(checked) => setFormData({ ...formData, agreeToTerms: checked as boolean })}
               className="mt-1"
             />
-            <label htmlFor="terms" className="text-xs text-muted-foreground cursor-pointer leading-relaxed">
+            <label htmlFor="terms" className="text-xs text-[#071022] dark:text-[#E5E7EB] cursor-pointer leading-relaxed font-medium">
               By continuing, you agree to VoltHub's{" "}
-              <a href="/terms" className="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background rounded px-0.5">
+              <a href="/terms" className="text-[#0052FF] dark:text-[#0052FF] hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background rounded px-0.5 font-semibold">
                 Terms of Service
               </a>
               {" "}and{" "}
-              <a href="/privacy" className="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background rounded px-0.5">
+              <a href="/privacy" className="text-[#0052FF] dark:text-[#0052FF] hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background rounded px-0.5 font-semibold">
                 Privacy Policy
               </a>
             </label>
