@@ -121,5 +121,13 @@
     }
   ],
   "verificationTokens": [],
-  "passwordResetTokens": []
+  "passwordResetTokens": [
+    {
+      "token": "17790814",
+      "userId": "gkswenczj",
+      "email": "onuohaphilip333@gmail.com",
+      "expiresAt": "2026-03-21T20:10:10.451Z",
+      "createdAt": "2026-03-21T19:10:10.451Z"
+    }
+  ]
 }

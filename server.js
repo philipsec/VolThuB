@@ -9,6 +9,8 @@ import path from 'path';
 import nodemailer from 'nodemailer';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import dotenv from 'dotenv';
+import mysql from 'mysql2/promise';
+
 
 // Load environment variables
 dotenv.config({ path: '.env.local' });
@@ -1488,6 +1490,61 @@ app.post('/api/upload-multiple', upload.array('images', 10), (req, res) => {
     res.status(500).json({ error: error.message || 'Upload failed' });
   }
 });
+
+// ============ SECURITY MONITORING ROUTES ============
+
+const securityDb = mysql.createPool({
+  host: 'localhost',
+  user: 'monitor',
+  password: 'Monitor@1234',
+  database: 'threat_detection'
+});
+
+
+app.get('/api/security/logs', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const [rows] = await securityDb.execute(
+      'SELECT * FROM network_logs ORDER BY timestamp DESC LIMIT ' + limit
+    );
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/security/threats', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 50;
+    const [rows] = await securityDb.execute(
+      'SELECT * FROM threats ORDER BY timestamp DESC LIMIT ' + limit
+    );
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/security/stats', async (req, res) => {
+  try {
+    const [[{ total_packets }]] = await securityDb.execute(
+      'SELECT COUNT(*) as total_packets FROM network_logs'
+    );
+    const [[{ total_threats }]] = await securityDb.execute(
+      'SELECT COUNT(*) as total_threats FROM threats'
+    );
+    const [[{ high_severity }]] = await securityDb.execute(
+      "SELECT COUNT(*) as high_severity FROM threats WHERE severity = 'HIGH'"
+    );
+    const [protocol_breakdown] = await securityDb.execute(
+      'SELECT protocol, COUNT(*) as count FROM network_logs GROUP BY protocol'
+    );
+    res.json({ total_packets, total_threats, high_severity, protocol_breakdown });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 // Start server
 app.listen(PORT, () => {

@@ -13,6 +13,8 @@ import MyBookings from "./pages/MyBookings";
 import UserProfile from "./pages/UserProfile";
 import PasswordReset from "./pages/PasswordReset";
 import NotFound from "./pages/NotFound";
+import NotFound from "./pages/NotFound";
+import SecurityDashboard from "./pages/SecurityDashboard";
 import PublicLayout from "./layouts/PublicLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import PortalLayout from "./layouts/PortalLayout";
@@ -86,6 +88,8 @@ export const router = createBrowserRouter([
           { path: "booking-confirmation/:bookingId", Component: BookingConfirmation },
           { path: "my-bookings", Component: MyBookings },
           { path: "profile", Component: UserProfile },
+	  { path: "security", Component: SecurityDashboard },
+
         ],
       },
       { path: "*", Component: NotFound },
