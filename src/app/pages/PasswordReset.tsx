@@ -37,9 +37,6 @@ export default function PasswordReset() {
 
       // Keep email around so the user can continue the flow via email link
       localStorage.setItem('volthub_password_reset_email', email);
-      if (result?.resetCode) {
-        setResetCode(result.resetCode);
-      }
 
       setStep("verification");
       setResendDisabled(true);

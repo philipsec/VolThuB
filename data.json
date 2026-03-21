@@ -18,7 +18,8 @@
       "lastName": "Onuoha",
       "name": "Philip Onuoha",
       "emailVerified": true,
-      "createdAt": "2026-03-13T19:48:06.724Z"
+      "createdAt": "2026-03-13T19:48:06.724Z",
+      "profilePicUrl": "http://localhost:3001/api/uploads/avatar-1774133052254-535884742.jpeg"
     },
     {
       "id": "mpajub9m8",

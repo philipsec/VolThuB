@@ -802,13 +802,9 @@ app.post('/api/auth/reset-password', async (req, res) => {
       emailText
     );
 
-    // In development mode (or when email provider is not fully configured), return code in response for testing
-    const responsePayload = {
+    res.json({
       message: 'Password reset email sent',
-      resetCode: resetToken,
-    };
-
-    res.json(responsePayload);
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
